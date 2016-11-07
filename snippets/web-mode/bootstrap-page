@@ -1,0 +1,20 @@
+
+    <title>Bootstrap 实例 - 标签页与胶囊式标签页</title>
+
+
+<div class="container">
+ <h2>分页</h2>
+  <p>.disabled 类指定不可访问的分页链接， .active 类设置当前访问的页面： </p>
+  <ul class="pagination">
+    <li><a href="#">«</a></li>
+    <li><a href="#">1</a></li>
+    <li><a href="#">2</a></li>
+    <li class="disabled"><a href="#">3</a></li>
+    <li><a href="#">4</a></li>
+    <li><a href="#">5</a></li>
+    <li class="active"><a href="#">6</a></li>
+    <li><a href="#">»</a></li>
+  </ul>
+</div>
+
+

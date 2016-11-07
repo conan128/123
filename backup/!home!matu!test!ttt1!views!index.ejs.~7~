@@ -1,0 +1,61 @@
+<html>
+    <head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+	  	  <script src="home.js"></script>
+	<script src="http://apps.bdimg.com/libs/angular-route/1.3.13/angular-route.js"></script>
+	<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	 angular.module('ngRouteExample', ['ngRoute'])
+		.controller('HomeController', function ($scope, $route) { $scope.$route = $route;})
+		.controller('AboutController', function ($scope, $route) { $scope.$route = $route;})
+		.config(function ($routeProvider) {
+		    $routeProvider.
+			 when('/home', {
+			     templateUrl: 'ex3.html',
+                 controller: 'HomeController'
+			 }).
+			      when('/about', {
+				  templateUrl: 'embedded.about.html',
+				  controller: 'AboutController'
+			      }).
+			      otherwise({
+				  redirectTo: '/home'
+			      });
+		});
+	</script>
+
+	
+    </head>
+
+    <body ng-app="ngRouteExample" class="ng-scope">
+	<div class="container">
+	  
+	    <div id="navigation">
+		    <h4>胶囊式导航中的激活状态</h4>
+		    <ul class="nav nav-pills">
+			<li class="active"><a href="#/home">Home</a><a> <span class="badge">42</span></a></li>
+			<li><a href="#/about">About</a><a> <span class="badge">3</span></a></li>
+		    </ul>
+		    <br>  
+	
+	    </div>
+	    <div ng-include="'ex1.html'"></div>
+	<script type="text/ng-template" id="embedded.home.html">
+        <p>I am the bone of my swrod</p>
+	</script>
+	<script type="text/ng-template" id="embedded.about.html">
+	    <h1> About </h1>
+	</script>
+
+	<div> 
+	    
+	    <div ng-view="">
+	    </div>
+	</div>
+
+	</div>
+    </body>
+</html>

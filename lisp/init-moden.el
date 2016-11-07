@@ -1,0 +1,148 @@
+;;安装slime
+;; setup load-path and autoloads
+          
+(add-to-list 'load-path "~/.emacs.d/elpa/slime")
+          
+(require 'slime-autoloads)
+;; sbcl slime                                                                                                                          
+(setq inferior-lisp-program "/usr/bin/sbcl")
+(setq slime-contribs '(slime-fancy))
+    
+ ;; Set your lisp system and, optionally, some contribs
+(setq inferior-lisp-program "/usr/local/bin/sbcl") 
+(setq slime-contribs '(slime-fancy))
+;;下载包.
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") 1))
+
+;; cl - Common Lisp Extension
+(require 'cl)
+
+;; Add Packages
+(defvar my/packages '(
+;; --- Auto-completion ---
+   company
+;; --- Better Editor ---
+   smooth-scrolling
+   hungry-delete
+   swiper
+   counsel
+   smartparens
+;; --- Major Mode ---
+   js2-mode
+;;   markdown-mode
+;; --- Minor Mode ---
+;; Quick Note Taking
+;;   deft
+ JavaScript REPL
+;;nodejs-repl
+;; Find OS X Executable Helper Package
+		      ;;...
+		      ))
+;; 显示行号
+
+;;(global-colomum-mode t)
+;; 自动配对的修复
+;;(sp-local-pair '(emacs-lisp-mode lisp-interaction-mode) "'" nil :actions nil)
+;;所有的 HTML 代码在 Emacs 中就会之间启用 web-mode 而非默认的 HTML Mode 了
+(setq auto-mode-alist
+      (append
+       '(("\\.js\\'" . js2-mode))
+       '(("\\.html\\'" . web-mode))
+       '(("\\.java\\'" .java-mode))
+       '(("\\.coffee\\'" . coffee-mode))
+       '(("\\.txt\\'" . org-mode))
+       '(("\\.el\\'" . lisp-mode))
+       
+       auto-mode-alist))
+;;对不同的语言的缩减做出设置。下面的代码用于设置初始 的代码缩进，
+
+(defun my-web-mode-indent-setup ()
+  (setq web-mode-markup-indent-offset 2) ; web-mode, html tag in html file
+  (setq web-mode-css-indent-offset 2)    ; web-mode, css in html file
+  (setq web-mode-code-indent-offset 2)   ; web-mode, js code in html file
+  )
+(add-hook 'web-mode-hook 'my-web-mode-indent-setup)
+;;js2-refactor 插件
+(add-hook 'js2-mode-hook #'js2-refactor-mode)
+(js2r-add-keybindings-with-prefix "C-c C-m")
+;;于配置 Occur Mode 使其默认搜索当前被选中的或者在光标下的字符串
+(defun occur-dwim ()
+  "Call `occur' with a sane default."
+  (interactive)
+  (push (if (region-active-p)
+	    (buffer-substring-no-properties
+	     (region-beginning)
+	     (region-end))
+	  (let ((sym (thing-at-point 'symbol)))
+	    (when (stringp sym)
+	      (regexp-quote sym))))
+	regexp-history)
+  (call-interactively 'occur))
+(global-set-key (kbd "M-s o") 'occur-dwim)
+;;imenu
+(defun js2-imenu-make-index ()
+  (interactive)
+  (save-excursion
+    ;; (setq imenu-generic-expression '((nil "describe\\(\"\\(.+\\)\"" 1)))
+    (imenu--generic-function '(("describe" "\\s-*describe\\s-*(\\s-*[\"']\\(.+\\)[\"']\\s-*,.*" 1)
+			       ("it" "\\s-*it\\s-*(\\s-*[\"']\\(.+\\)[\"']\\s-*,.*" 1)
+			       ("test" "\\s-*test\\s-*(\\s-*[\"']\\(.+\\)[\"']\\s-*,.*" 1)
+			       ("before" "\\s-*before\\s-*(\\s-*[\"']\\(.+\\)[\"']\\s-*,.*" 1)
+			       ("after" "\\s-*after\\s-*(\\s-*[\"']\\(.+\\)[\"']\\s-*,.*" 1)
+			       ("Function" "function[ \t]+\\([a-zA-Z0-9_$.]+\\)[ \t]*(" 1)
+			       ("Function" "^[ \t]*\\([a-zA-Z0-9_$.]+\\)[ \t]*=[ \t]*function[ \t]*(" 1)
+			       ("Function" "^var[ \t]*\\([a-zA-Z0-9_$.]+\\)[ \t]*=[ \t]*function[ \t]*(" 1)
+			       ("Function" "^[ \t]*\\([a-zA-Z0-9_$.]+\\)[ \t]*()[ \t]*{" 1)
+			       ("Function" "^[ \t]*\\([a-zA-Z0-9_$.]+\\)[ \t]*:[ \t]*function[ \t]*(" 1)
+			       ("Task" "[. \t]task([ \t]*['\"]\\([^'\"]+\\)" 1)))))
+(add-hook 'js2-mode-hook
+	  (lambda ()
+	    (setq imenu-create-index-function 'js2-imenu-make-index)))
+
+(global-set-key (kbd "M-s i") 'counsel-imenu)
+
+;;expand-renion
+(global-set-key (kbd "C-=") 'er/expand-region)
+(global-set-key (kbd "M-s e") 'iedit-mode)
+;;我们可以使用下面的配置来在 Company-mode 中使用 C-n 与 C-p 来选择补全项
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "C-n") #'company-select-next)
+  (define-key company-active-map (kbd "C-p") #'company-select-previous))
+;;在学习代码片段和语法检查器（Linter）之前，我们先来学习一下如何使用 Org-mode 来做 学习笔记和安排工作时间。我们用下面的配置代码来设置一个模板（其中设置了待办事项的 优先级还有触发键），
+
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/.emacs.d/gtd.org" "工作安排")
+	 "* TODO [#B] %?\n  %i\n"
+	 :empty-lines 1)))
+;;我们也可以为其绑定一个快捷键，
+
+(global-set-key (kbd "C-c r") 'org-capture)
+(set-language-environment "UTF-8")
+;;当 org-mode 不能生效时，我们需要将与 Org 相关的配置放置于 with-eval-after-load 中，
+
+(with-eval-after-load 'org
+  ;; Org 模式相关设定
+  ;;ag
+  (global-set-key (kbd "C-c p s") 'helm-do-ag-project-root)  )
+;;语法检查器（Linter）只有js2mode打开
+(add-hook 'js2-mode-hook 'flycheck-mode)
+;;代码补全
+(require 'org)
+(setq org-src-fontify-natively t)
+(setq auto-mode-alist
+      (append
+       ;; File name (within directory) starts with a dot.
+       '(("/\\.[^/]*\\'" . fundamental-mode)
+	 ;; File name has no dot.
+	 ("/[^\\./]*\\'" . fundamental-mode)
+	 ;; File name ends in ‘.C’.
+	 ("\\.C\\'" . c++-mode))
+          auto-mode-alist))
+
+;;provide
+(provide 'init-moden)

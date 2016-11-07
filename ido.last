@@ -1,0 +1,32 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/home/" . "matu/")
+ ("/" . "home/")
+ ("/home/matu/" . "test/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/home/matu/test/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "a.coffee"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/home/matu/test/" (22557 54315 436641 745000) "LGPL/" "mat/" "manifest.json" "b.js" "../" "libpepflashplayer.so" "c.coffee" "a.coffee" "helloworld/" "e.js" "b.coffee" "README" "sae/" "./")
+
+ ("/home/" (22534 2215 448146 102000) "matu/" "../" "lisa/" "lost+found/" "./")
+
+ ("/home/matu/Mail/" (22552 44092 564948 370000) "drafts/" "draft/" "../" "20161022/" "queue/" "sent/" "trash/" "inbox/" "./" ".mh_sequences")
+
+ ("/home/matu/" (22557 58364 668794 168000) ".rnd" ".slime-history.eld" ".dmrc" ".xboardrc" ".gitconfig" ".nano_history" ".kingsoft/" ".emacs~~" ".git/" ".netrc" "dead.letter" ".bash_logout" ".mozilla/" ".bash_logout~" ".gnome2/" "桌面/" ".newsrc-dribble~" ".gnome2_private/" ".ICEauthority" ".coffee_history" ".gstreamer-0.10/" ".gnupg/" ".macromedia/" ".mplayer/" ".vimrc3" ".adobe/" ".emacs~" ".bashrc2" ".vimrc1" "../" "a.txt" ".newsrc-dribble" ".profile" ".compiz/" ".bashrc~" ".vimrc2~" ".bashrc" ".vimplus/" " " "a.js" ".gconf/" ".claws-mail/" ".purple/" ".rpmdb/" ".emacs" "test/" ".msmtprc" ".dbshell" "manoj-darktheme.el" ".dbus/" ".spamassassin/" ".babel-cache/" "meteor/" "yinori/" ".Xauthority" ".meteor/" ".meteorsession" ".links2/" "sent" ".local/" ".mongorc.js" ".ssh/" "Project/" ".w3m/" ".aptitude/" ".node-gyp/" ".presage/" ".cache/" ".pki/" ".vimrc" ".xsession-errors" ".emacs.d/" ".gvfs/" ".sogouinput/" ".muttrc" ".config/" ".viminfo" ".xinputrc" ".kde/" "package.json" "News/" ".babel.json" ".msmtp.log" ".node_repl_history" ".sudo_as_admin_successful" ".subversion/" ".fonts/" "./" ".bash_history" ".npm/" "～/" ".vim/" ".vimrc2" "Mail/" ".vimrc~" ".xsession-errors.old" "下载/" ".nv/")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t

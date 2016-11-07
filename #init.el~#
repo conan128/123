@@ -1,0 +1,1452 @@
+;;-*- mode: lisp; coding: utf-8 -*-
+;; Tested Emacs version: 23.1.1, 23.2, 24.3
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Convention
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; ;            - turn on or off some feature by add or erase it
+;; ;;           - remark (should not be ereased)
+;; ;;o;;        - obsolete (used for mark obsolete version)
+
+;; ;;^^^        - region begin
+;; ;;{{--       - group begin
+;; ;;[[--       - section begin
+;; ;;((--       - subsection begin
+;; ;;<<--       - item begin
+;; ;;--         - entry
+;; ;;-->>       - item end
+;; ;;--))       - subsection end
+;; ;;--]]       - section end
+;; ;;--}}       - group end
+;; ;;vvv        - region end
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Prepare Setup
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(defgroup myemacs nil
+  "group myemacs"
+  :group 'local
+  :prefix 'myemacs)
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Subroutines
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;-->>Path Parse
+(defun fun-path (path)
+  "substitute enviroment varibles in path"
+  (substitute-in-file-name path)
+  )
+
+(defun fun-path-list (path-list)
+  "parse path list"
+  (let (value)
+    (dolist (elt path-list value)
+      (setq value (cons (fun-path elt) value))
+      )
+    )
+  )
+
+;;-->>Maximize Frame
+(defun fun-x-maximize-frame()
+  "Maximize the current frame for X"
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0)
+   )
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0)
+   )
+  )
+(defun fun-w32-maximize-frame()
+  "Maximize the current frame for MS-Windows"
+  (interactive)
+  (w32-send-sys-command 61488)
+  )
+(defun fun-maximize-frame()
+  (interactive)
+  (cond
+   ((eq window-system 'x)
+    (fun-x-maximize-frame))
+   ((eq window-system 'w32)
+    (fun-w32-maximize-frame))
+   ((eq window-system 'nil)
+    ())
+   )
+  )
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Env
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;HOME DIRECTORY :  set at HKEY_LOCAL_MACHINE\SOFTWARE\GNU\Emacs\HOME or enviroment variable "HOME"
+;;when Emacs start, it load .emacs under HOME DIRECTORY or with arguments `--no-init-file --load PATH/.emacs'
+(when (eq system-type 'windows-nt)
+  (setenv "SOFT_DRIVE" "D:")
+  (setenv "WORK_DRIVE" "E:")
+  ;;use the enviroment variable "HOME" to load .emacs;we can set it to a new directory as the new home
+  (setenv "SOFTWARE" (fun-path "$SOFT_DRIVE/software"))
+  (setenv "HOME" (fun-path "$SOFTWARE/home"))
+  (setenv "WINLINUX" (fun-path "$SOFTWARE/winlinux"))
+  (setenv "MINGW" (fun-path "$SOFTWARE/MinGW"))
+
+  ;;use env("PATH") to search program , such as eshell
+  (setenv "PATH" (concat (fun-path (concat
+				    "$WINLINUX/emacs-23.2/bin;"
+				    "$WINLINUX/cscope;"
+				    "$WINLINUX/shell.w32-ix86;"
+				    "$WINLINUX/win-bash_0_6;"
+				    "$WINLINUX/unzip-5.51-1-bin/bin;"
+				    "$WINLINUX/llvm/bin;"
+				    "$WINLINUX/clang/bin;"
+				    "$WINLINUX/w3m;"
+				    "$WINLINUX/ISpell;"
+				    )) (getenv "PATH")))
+
+  )
+
+(defun fun-setup-dir ()
+  "setup directory based on OS"
+  (cond
+   ((eq system-type 'gnu/linux)
+    (progn
+      (setenv "SRC" "~/src")
+      (setenv "DOC" "~/doc")
+      ))
+   ((eq system-type 'windows-nt)
+    (progn
+      (setenv "SRC" (fun-path "$WORK_DRIVE/src"))
+      (setenv "DOC" (fun-path "$WORK_DRIVE/doc"))
+      ))
+   (t (error "not supported os"))
+   )
+  (setenv "EMACSD" (directory-file-name (file-name-directory load-file-name)))
+  (message "env EMACSD : %s" (getenv "EMACSD"))
+  (setq myemacsd (getenv "EMACSD"))
+  (setq mylispd (concat myemacsd "/site-lisp"))
+
+  (setenv "ISPELL_DICT" (fun-path "$EMACSD/data/ISpell"))
+
+  (setenv "KERNEL_SRC" (fun-path"$SRC/linux-2.6.32.60"))
+  )
+(fun-setup-dir)
+
+
+;;--Include Path List
+(defun fun-myemacs-include-dir-list-project ()
+  "return list of project include directories"
+  (list
+   "../include/"
+   "include/"
+   ))
+(defun fun-myemacs-include-dir-list-system ()
+  "return list of system include directories, which usually are output of `echo "" | gcc -v -x c++ -E -'"
+  (cond
+       ((eq system-type 'windows-nt) (split-string "  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/include/c++  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/include/c++/mingw32  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/include/c++/backward  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/include  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/../../../../include  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/include-fixed  
+ d:/software/mingw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/include  
+    "))
+           ((eq system-type 'gnu/linux) (split-string "  
+ /usr/lib/gcc/i686-redhat-linux/4.4.5/../../../../include/c++/4.4.5  
+ /usr/lib/gcc/i686-redhat-linux/4.4.5/../../../../include/c++/4.4.5/i686-redhat-linux  
+ /usr/lib/gcc/i686-redhat-linux/4.4.5/../../../../include/c++/4.4.5/backward  
+ /usr/local/include  
+ /usr/lib/gcc/i686-redhat-linux/4.4.5/include  
+ /usr/include  
+    "))
+	   )
+  )
+
+(defun fun-myemacs-include-dir-list-kernel ()
+  "return list of kernel include directories"
+  (if (file-exists-p (getenv "KERNEL_SRC"))
+      (fun-path-list '(
+		       "$KERNEL_SRC/include"
+		       "$KERNEL_SRC/arch/x86/include"
+		       ))
+    nil
+    )
+  )
+
+(defcustom myemacs-include-dir-list-system (fun-myemacs-include-dir-list-system)
+  "system include dirs"
+  :type '(repeat string)
+  :group 'myemacs
+  )
+
+(defcustom myemacs-include-dir-list-project (fun-myemacs-include-dir-list-project)
+  "system include dirs"
+  :type '(repeat string)
+  :group 'myemacs
+  )
+
+(defcustom myemacs-include-dir-list-kernel (fun-myemacs-include-dir-list-kernel)
+  "system include dirs"
+  :type '(repeat string)
+  :group 'myemacs
+  )
+
+
+(defun fun-get-system-include-dir-list ()
+  (let (
+	(value)
+	(dir-list-list '(
+			 myemacs-include-dir-list-system
+			 myemacs-include-dir-list-project
+			 myemacs-include-dir-list-kernel
+			 )))
+    (dolist (dir-list dir-list-list value)
+      (when (boundp dir-list)
+	(setq value (append value (symbol-value dir-list)))
+	)
+      )
+    )
+  )
+(setq system-include-dir-list (fun-get-system-include-dir-list))
+
+
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;Common (group based on `GNU Emacs Manual')
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;======================================
+;;{{-- Important General Concepts
+;;[[--Entering Emacs
+;;You can also force Emacs to display a file or directory at startup by setting the variable `initial-buffer-choice' to a non-`nil' value.(In that case, even if you specify one or more files on the command line, Emacs opens but does not display them.)
+					;(setq initial-buffer-choice t)      ;;The value of `initial-buffer-choice' can be either the name of the desired file or directory, or `t', which means to display the `*scratch*' buffer.
+(setq inhibit-startup-screen t)     ;;If the variable `inhibit-startup-screen' is non-`nil', Emacs does not display the startup screen.
+
+;;[[-- Exiting Emacs
+;;If the value of the variable `confirm-kill-emacs' is non-`nil', `C-x C-c' assumes that its value is a predicate function, and calls that function.  If the result of the function call is non-`nil', the session is killed, otherwise Emacs continues to run.
+(setq confirm-kill-emacs 'yes-or-no-p)
+
+;;======================================
+;;{{-- Fundamental Editing Commands
+;;[[-- Basic
+;;--Inserting Text
+;;To insert a non-graphic character, or a character that your keyboard does not support, first "quote" it by typing `C-q' (`quoted-insert').
+;;`C-q' followed by any non-graphic character (even `C-g') inserts that character.  For instance, `C-q <DEL>' inserts a literal `DEL' character.
+;;`C-q' followed by a sequence of octal digits inserts the character with the specified octal character code.
+(setq read-quoted-char-radix 16)    ;;To use decimal or hexadecimal instead of octal, set the variable `read-quoted-char-radix' to 10 or 16.
+
+
+;;[[-- Minibuffer
+(setq resize-mini-windows t)        ;;A value of t means resize them to fit the text displayed in them.
+(setq completion-auto-help 'lazy)   ;;Emacs only shows the completion list buffer on the second attempt to complete
+(setq history-delete-duplicates t)  ;;adding a new element deletes from the list all other elements that are equal to i
+(icomplete-mode t)                  ;;Icomplete mode presents a constantly-updated display that tells you what completions are available for the text you've entered so far
+;;<<-- Minibuffer Edit
+(setq enable-recursive-minibuffers t)
+
+;;[[-- Help
+;;((-- Misc Help
+;;--InfoMode
+;; C-u C-h i : open a file in info-mode
+(defun fun-reopen-in-info-mode ()
+  (let ((file-name (buffer-file-name)))
+    (kill-buffer (current-buffer))
+    (info file-name)
+    )
+  )
+(add-to-list 'auto-mode-alist '("\\.info\\'" . fun-reopen-in-info-mode))
+
+;;((-- Help Echo
+(setq help-at-pt-display-when-idle t)   ;;To display help text automatically whenever it is available on the character after point
+
+
+;;======================================
+;;{{-- Important Text-Changing Commands
+;;[[-- Mark
+(delete-selection-mode t)           ;;inserting text while the mark is active causes the selected text to be deleted first
+
+;;[[-- Yanking
+;;-- Yanking Earlier Kills
+(setq kill-ring-max 200)            ;;The length of the kill ring is controlled by the variable `kill-ring-max'; no more than that many blocks of killed text are saved.
+
+;;[[-- Display
+;;--Horizontal Scrolling
+(setq hscroll-margin 8)             ;;The variable `hscroll-margin' controls how close point can get to the window's edges before automatic scrolling occurs.
+
+;;--Follow Mode                     ;;"Follow mode" is a minor mode that makes two windows, both showing the same buffer, scroll as a single tall "virtual window."
+					;(follow-mode t)
+
+;;Highlight Interactively
+					;(global-highlight-changes-mode t)   ;;Highlight Changes mode is a minor mode that "highlights" the parts of the buffer were changed most recently, by giving that text a different face.
+(global-hi-lock-mode t)             ;;Hi Lock mode is a minor mode that highlights text that matches regular expressions you specify.
+
+
+;;--Displaying Boundaries
+(setq default-indicate-buffer-boundaries '((top . left) (bottom . left) (t . nil)))
+
+;;--Useless Whitespace
+(setq-default show-trailing-whitespace t)   ;; You can make trailing whitespace at the end of a line visible by setting the buffer-local variable `show-trailing-whitespace' to `t'.
+
+;;--Optional Mode Line
+(size-indication-mode t)            ;;When Size Indication mode is enabled, the size of the accessible part of the buffer appears in the mode line
+(column-number-mode t)              ;;When Column Number mode is enabled, the column number appears in the mode line
+(setq line-number-mode t)           ;;When Line Number mode is enabled, the line number appears in the mode line.
+
+;;--Text Display
+;;--Tab
+					;(setq tab-width 4)                 ;;The number of spaces per tab is controlled by the variable `tab-width', and is made local by changing it
+					;(setq default-tab-width 4)         ;; controls the default value of `tab-width' for buffers where you have not set it locally.
+
+;;--Cursor Display
+(setq visible-cursor t)             ;;Some text terminals offer two different cursors: the normal cursor and the very visible cursor, where the latter may be e.g. bigger or blinking.
+(global-hl-line-mode t)             ;;To make the cursor even more visible, you can use HL Line mode, a minor mode that highlights the line containing point.
+
+;;--Line Truncation
+;;You can explicitly enable line truncation for a particular buffer with the command `M-x toggle-truncate-lines'.
+					;(setq-default truncate-lines t)     ;;If variable `truncate-lines' is non-`nil', long lines are truncated; if it is `nil', they are continued onto multiple screen lines.
+
+;;[[-- Search
+(setq default-case-fold-search nil) ;;If you set the variable `case-fold-search' to `nil', then all letters must match exactly, including case
+
+
+;;======================================
+;;{{-- Major Structures of Emacs
+;;[[-- Files
+;;((-- File Names
+;;--Default Directory
+;;default-directory : set the default file path(f.e. open file);
+;;The default directory is kept in the variable `default-directory', which has a separate value in every buffer.
+(defun fun-set-default-directory(dir)
+  "set default-directory"
+  (if (file-exists-p dir) (setq default-directory dir)
+    (setq default-directory (getenv "HOME"))
+    )
+  )
+(fun-set-default-directory (getenv "KERNEL_SRC"))
+
+;;((-- Saving
+;;<<-- Backup
+;;--Single or Numbered Backups
+(setq make-backup-files t)          ;;For most files, the variable `make-backup-files' determines whether to make backup files
+(setq version-control t)            ;;The variable `version-control' determines whether to make single backup files or multiple numbered backup files.
+;;You can customize the variable `backup-directory-alist' to specify that files matching certain patterns should be backed up in specific directories.
+(setq backup-directory-alist '(
+			       ("." . "~/.backup/emacs/")
+			       ))
+
+;;--Automatic Deletion of Backups
+;;The two variables `kept-old-versions' and `kept-new-versions' control this deletion.  Their values are, respectively, the number of oldest (lowest-numbered) backups to keep and the number of newest (highest-numbered) ones to keep, each time a new backup is made.  The backups in the middle (excluding those oldest and newest) are the excess middle versions--those backups are deleted.  These variables' values are used when it is time to delete excess versions, just after a new backup version is made; the newly made backup is included in the count in `kept-new-versions'.  By default, both variables are 2.
+;;If `delete-old-versions' is `t', Emacs deletes the excess backup files silently.  If it is `nil', the default, Emacs asks you whether it should delete the excess backup versions.
+(setq kept-old-versions 2)
+(setq kept-new-versions 3)
+(setq delete-old-versions t)
+
+;;--File Conveniences
+(recentf-mode t)                    ;;When recentf mode is enabled, it maintains a menu for visiting files that were operated on recently.
+
+;;[[-- Buffers
+;;((-- Misc Buffer
+;;--ReadOnly
+;;open file read only:find-file-read-only(C-x C-r)
+;;read write switch:toggle-read-only(C-x C-q)
+(defvar var-read-only-major-mode-list '(
+					c-mode
+					c++-mode
+					text-mode
+					)
+  "read only major modes"
+  )
+(defun fun-read-only-hook-major-mode()
+  "when file opened is of a certain major mode, make it read only"
+  (when (memq major-mode var-read-only-major-mode-list)
+    (toggle-read-only 1)
+    )
+  )
+					;(add-hook 'find-file-hooks 'fun-read-only-hook-major-mode)
+(add-hook 'find-file-hooks 'toggle-read-only)
+
+;;[[-- Windows
+;;--Window Convenience
+					;(scroll-all-mode t)                 ;;When Scroll-All mode is on, scrolling commands entered in one window apply to all visible windows in the same frame.
+
+;;[[-- Frame
+;;--Mouse Avoidance
+(mouse-avoidance-mode 'animate)     ;;Mouse Avoidance mode keeps the mouse pointer away from point, to avoid obscuring text you want to edit
+
+
+
+
+;;{{-- Advanced Features
+;;[[-- Major Modes
+;;--Choosing Modes
+(setq default-major-mode 'text-mode) ;;When you visit a file that does not specify a major mode to use, or when you create a new buffer with `C-x b', the variable `default-major-mode' specifies which major mode to use
+
+;;[[-- Indentation
+;;--Tab Stops
+;;C-h v tab-stop-list : view value of variable tab-stop-list
+;;You can change the tab stops used by `M-i' and other indentation commands, so that they need not be spaced every eight characters, or even regularly spaced.  The tab stops are stored in the variable `tab-stop-list', as a list of column numbers in increasing order.
+;;o;;(setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60 64 68 72 76 80 84 88 92 96))
+(defun fun-set-tab-stop-list(step end)
+  "set tab stops"
+  (setq tab-stop-list ())
+  (setq idx (/ end step))
+  (while (> idx 0)
+    (setq tab-stop-list (cons (* idx step) tab-stop-list))
+    (setq idx (- idx 1))
+    )
+  )
+(fun-set-tab-stop-list 4 90)
+
+
+;;--Just Spaces
+(setq-default indent-tabs-mode nil) ;;Emacs normally uses both tabs and spaces to indent lines.If you prefer, all indentation can be made from spaces only.  To request this, set `indent-tabs-mode' to `nil'
+
+
+;;[[-- Text
+;;--Sentences
+;;The variable `sentence-end' controls how to recognize the end of a sentence.  If non-`nil', its value should be a regular expression, which is used to match the last few characters of a sentence, together with the whitespace following the sentence (*note Regexps::).  If the value is `nil', the default, then Emacs computes sentence ends according to various criteria such as the value of `sentence-end-double-space'.
+(setq sentence-end "\\([。！？]\\|……\\|[.?!][]\"')}]*\\($\\|[ \t]\\)\\)[ \t\n]*")
+(setq sentence-end-double-space nil)
+
+
+;;[[-- Programs
+;;((-- Parentheses
+;; could be bad, will not let you save at all, until you correct the error
+(defun fun-write-file-check-parens ()
+  "check-parens when write-file"
+  (add-hook 'local-write-file-hooks 'check-parens)
+  )
+(add-hook 'emacs-lisp-mode-hook 'fun-write-file-check-parens)
+
+;;<<-- Matching
+(show-paren-mode t)                 ;;Whenever point is before an opening delimiter or after a closing delimiter, both that delimiter and its opposite delimiter are highlighted
+
+;;((-- Documentation
+;;-- Man Page
+					;(setq Man-notify 'newframe)
+(setq Man-notify 'bully)
+(setq Man-switches "-a")
+
+;;((-- Hideshow
+(add-hook 'c-mode-hook 'hs-minor-mode)          ;;Hideshow minor mode provides selective display of portions of a program, known as "blocks"
+
+
+;;[[-- Maintaining
+;;--Tags
+;;Selecting a Tags Table
+;;You can specify a precise list of tags tables by setting the variable `tags-table-list' to a list of strings
+(setq tags-table-list '(
+			"~/work/link/etags/"
+			))
+
+;;[[-- Dired
+;;--Entering Dired
+;;The variable `dired-listing-switches' specifies the options to give to `ls' for listing the directory; this string _must_ contain `-l'.  If you use a numeric prefix argument with the `dired' command, you can specify the `ls' switches with the minibuffer before you enter the directory specification.
+(setq dired-listing-switches "-al --file-type --group-directories-first")
+
+;;[[-- Customization
+;;((-- Minor Modes
+;;--LineNumber
+(require 'linum)            ;; require feature linum
+(global-linum-mode 1)       ;; Toggle Linum mode in every possible buffer
+
+;;((-- Easy Customization
+;;<<-- Saving Customizations
+					;(let ((cust-file (fun-path "$EMACSD/emacs-custom.el")))
+					;  (when (and (file-exists-p cust-file) (file-writable-p cust-file))
+					;    (load-file cust-file))
+					;  (setq custom-file cust-file)
+					;)
+
+
+
+
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;Elisp (group based on `GNU Emacs Lisp Reference Manual')
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- Frames
+;;[[-- Frame Titles
+(setq frame-title-format "%b @ %f") ;;This variable specifies how to compute a name for a frame when you have not explicitly specified one.
+
+;;{{-- Processes
+;;[[-- Subprocess Creation
+;;-- exec-path
+;;`start-process'/`call-process'/`call-process-region' use `exec-path' to search PROGRAM
+;;emacs initial variable `exec-path' based on the value of env("PATH") before .emacs load, so set it here explicitly;
+(when (eq system-type 'windows-nt)
+  (setq exec-path (append exec-path (split-string (getenv "PATH") "[\f\t\n\r\v;]+" t)))
+  )
+
+;;{{-- Display
+;;[[-- Faces
+;;M-: (font-family-list)  : view font family list
+(defun fun-setup-face()
+  "set face"
+  (set-face-attribute 'default nil
+		      :foundry "unknown"
+		      :width 'normal
+		      :height 120
+		      :weight 'normal
+		      :slant 'normal
+		      :foreground "black"
+		      :background "white"
+		      )
+  (cond
+   ((member "AR PL UKai CN" (font-family-list))
+    (set-face-attribute 'default nil
+			:family "AR PL UKai CN"))
+   ((member "Consolas" (font-family-list))
+    (set-face-attribute 'default nil
+			:family "Consolas"
+			:height 105))
+   )
+
+  (cond
+   ((member "微软雅黑" (font-family-list))
+    (set-fontset-font "fontset-default" 'han "-outline-微软雅黑-normal-normal-normal-sans-18-*-*-*-p-*-iso8859-1")
+    )
+   )
+  )
+(fun-setup-face)
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;CC Mode (group based on `CC Mode Manual')
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- Getting Started
+(setq c-basic-offset 4)
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; GNU Emacs 23.1.1 builtins
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- speedbar.elc
+(require 'speedbar)
+(speedbar-change-initial-expansion-list "quick buffers")
+(setq speedbar-use-images nil)
+
+
+;;{{-- ffap.elc
+					;(ffap-bindings)
+
+
+;;{{-- ibuffer.elc
+(if (require 'ibuffer)
+    (global-set-key (kbd "C-x C-b") 'ibuffer)
+  )
+
+;;{{-- ido.elc
+(if (require 'ido)
+    (ido-mode t)          ;;Turning on ido-mode will remap (via a minor-mode keymap) the default keybindings for the `find-file' and `switch-to-buffer' families of commands to the ido versions of these functions.
+  )
+
+;;{{-- hippie-expand.elc
+(setq hippie-expand-try-functions-list '(
+					 try-expand-dabbrev
+					 try-expand-dabbrev-visible
+					 try-expand-dabbrev-all-buffers
+					 try-expand-dabbrev-from-kill
+					 try-complete-file-name-partially
+					 try-complete-file-name
+					 try-expand-all-abbrevs
+					 try-expand-list
+					 try-expand-line
+					 try-complete-lisp-symbol-partially
+					 try-complete-lisp-symbol
+					 ))
+(global-set-key [(meta ?/)] 'hippie-expand)
+
+
+
+;;{{-- windmove.elc
+(when (fboundp 'windmove-default-keybindings) (windmove-default-keybindings))
+(windmove-default-keybindings 'meta)
+					;(global-set-key (kbd "C-c <left>")  'windmove-left)
+					;(global-set-key (kbd "C-c <right>") 'windmove-right)
+					;(global-set-key (kbd "C-c <up>")    'windmove-up)
+					;(global-set-key (kbd "C-c <down>")  'windmove-down)
+
+
+
+
+;;==========================================================
+;;all above is about setup of GNU Emacs 23.1.1 builtins
+;;
+;;below are setup of plugins, most of which come from http://www.emacswiki.org/ (such as Category *)
+;;==========================================================
+
+(defcustom myemacs-noplugins t
+  "t for not plugin plugins;nil for plugin plugins"
+  :type 'boolean
+  :group 'myemacs
+  )
+
+(defmacro plugin (feature filename setup &rest args)
+  "plugin a plugin"
+  (interactive)
+  `(when (not ,myemacs-noplugins)
+     (require ,feature ,filename t)
+     (when (and (featurep ,feature))
+       (let* (
+	      (library (locate-library ,filename))
+	      (librarydir (directory-file-name (file-name-directory library)))
+	      )
+	 (,setup librarydir ,@args)
+	 (message "plugin[%s] librarydir[%s]" ,feature librarydir)
+	 )
+       )
+     )
+  )
+
+(when (file-exists-p mylispd)
+  (dolist (dir (directory-files mylispd t "^[^.][-a-zA-Z0-9.]*$" t))
+    (add-to-list 'load-path dir)
+    ))
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - Common
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;----------------------------------------------------------
+;; Category Buffer Switching
+;;----------------------------------------------------------
+;;{{-- swbuff
+(defun plugin-swbuff (librarydir)
+  "plugin swbuff"
+  (setq swbuff-exclude-buffer-regexps '("^ .*" "^\\*.*\\*"))
+  )
+(plugin 'swbuff "swbuff.el" plugin-swbuff)
+
+;;{{-- tabbar
+(defun plugin-tabbar (librarydir)
+  "plugin tabbar"
+  (interactive)
+  (tabbar-mode)
+					;  (global-set-key (kbd "C-{") 'tabbar-backward-group)
+					;  (global-set-key (kbd "C-}") 'tabbar-forward-group)
+					;  (global-set-key (kbd "C-<") 'tabbar-backward)
+					;  (global-set-key (kbd "C->") 'tabbar-forward)
+  )
+(plugin 'tabbar "tabbar.el" plugin-tabbar)
+
+;;----------------------------------------------------------
+;; Category Completion
+;;----------------------------------------------------------
+;;{{-- auto-complete
+(defun plugin-auto-complete (librarydir)
+  "plugin auto-complete"
+  (interactive)
+
+  (add-to-list 'ac-dictionary-directories (concat librarydir  "/dict"))
+  (ac-config-default)
+
+  (setq ac-quick-help-prefer-pos-tip)
+  (setq ac-use-quick-help t)
+  (setq ac-quick-help-delay 0.2)
+  (setq ac-dwim t)
+					;(setq ac-auto-start nil)
+  (ac-set-trigger-key "<C-return>")
+  (define-key ac-mode-map  [(control tab)] 'auto-complete)
+  (setq ac-fuzzy-enable t)
+  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+  (add-hook 'c-mode-hook 'ac-cc-mode-setup)
+  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  (global-auto-complete-mode t)
+  )
+(plugin 'auto-complete-config "auto-complete-config.el" plugin-auto-complete)
+
+
+;;{{-- auto-complete-clang
+(defun plugin-auto-complete-clang (librarydir)
+  "plugin auto-complete-clang"
+  (interactive)
+					;  (setq ac-clang-auto-save t)
+  (setq ac-clang-flags (mapcar (lambda (item) (concat "-I" item)) system-include-dir-list))
+  (add-hook 'c-mode-hook (lambda()
+			   (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources))))
+  )
+
+(plugin 'auto-complete-clang "auto-complete-clang.el" plugin-auto-complete-clang)
+
+;;{{-- auto-complete-gccsensee
+(defun plugin-auto-complete-gccsense (librarydir)
+  "plugin auto-complete-gccsensee"
+  (interactive)
+
+  (let ((bindir (concat (file-name-directory librarydir) "bin")))
+    (setenv "PATH" (concat  bindir path-separator (getenv "PATH")))
+    (add-to-list 'exec-path bindir))
+
+  (add-hook 'c-mode-common-hook (lambda ()
+					;    (flymake-mode)
+				  (gccsense-flymake-setup)))
+
+  (defun ac-complete-gccsense-self-insert (arg)
+    (interactive "p")
+    (self-insert-command arg)
+    (ac-complete-gccsense))
+  (defun my-c-mode-ac-complete-hook ()
+    (local-set-key "." 'ac-complete-gccsense-self-insert)
+    (local-set-key ">" 'ac-complete-gccsense-self-insert))
+  (add-hook 'c-mode-common-hook 'my-c-mode-ac-complete-hook)
+  )
+(plugin 'gccsense "etc/gccsense.el" plugin-auto-complete-gccsense)
+
+;;----------------------------------------------------------
+;; Category Windows
+;;----------------------------------------------------------
+;;{{-- window-number
+(defun plugin-window-number (librarydir)
+  "plugin window-number"
+  (interactive)
+  (window-number-mode)
+  (window-number-meta-mode)
+  )
+(plugin 'window-number "window-number.el" plugin-window-number)
+
+;;{{-- win-switch
+(defun plugin-win-switch (librarydir)
+  "plugin win-switch"
+  (interactive)
+  ;;  (global-set-key "\C-xo" 'win-switch-dispatch)
+  (win-switch-setup-keys-ijkl "\C-xo")
+  )
+(plugin 'win-switch "win-switch.el" plugin-win-switch)
+
+;;{{-- switch-window
+(defun plugin-switch-window (librarydir)
+  "plugin switch-window"
+  (interactive)
+  (global-set-key (kbd "C-x o") 'switch-window)
+  )
+(plugin 'switch-window "switch-window.el" plugin-switch-window)
+
+;;----------------------------------------------------------
+;; Category Region
+;;----------------------------------------------------------
+;;{{-- rect-mark
+(defun plugin-rect-mark (librarydir)
+  "plugin rect-mark"
+  (interactive)
+  (global-set-key (kbd "C-x r C-SPC") 'rm-set-mark)
+  (global-set-key (kbd "C-x r C-x") 'rm-exchange-point-and-mark)
+  (global-set-key (kbd "C-x r C-w") 'rm-kill-region)
+  (global-set-key (kbd "C-x r M-w") 'rm-kill-ring-save)
+  (autoload 'rm-set-mark "rect-mark" "Set mark for rectangle." t)
+  (autoload 'rm-exchange-point-and-mark "rect-mark" "Exchange point and mark for rectangle." t)
+  (autoload 'rm-kill-region "rect-mark" "Kill a rectangular region and save it in the kill ring." t)
+  (autoload 'rm-kill-ring-save "rect-mark" "Copy a rectangular region to the kill ring." t)
+  )
+(plugin 'rect-mark "rect-mark.el" plugin-rect-mark)
+
+;;{{-- Move Line
+(defun move-line-up ()
+  (interactive)
+  (transpose-lines 1)
+  (forward-line -2))
+
+(defun move-line-down ()
+  (interactive)
+  (forward-line 1)
+  (transpose-lines 1)
+  (forward-line -1))
+
+;;o;;(global-set-key (kbd "M-<up>") 'move-line-up)
+;;o;;(global-set-key (kbd "M-<down>") 'move-line-down)
+
+;;{{-- Move Text
+(defun plugin-move-text (librarydir)
+  "plugin move-text"
+  (interactive)
+  (move-text-default-bindings)
+  )
+(plugin 'move-text "move-text.el" plugin-move-text)
+
+;;----------------------------------------------------------
+;; Category Spelling
+;;----------------------------------------------------------
+;;{{-- ispell
+(defun plugin-ispell (librarydir)
+  "plugin ispell"
+  (interactive)
+  (add-to-list 'ispell-dictionary-alist
+	       `("ispell-dict-english"
+		 "[a-zA-Z\304\326\334\344\366\337\374]"
+		 "[^a-zA-Z\304\326\334\344\366\337\374]"
+		 "[']" t ("-C" "-d" ,(fun-path "$ISPELL_DICT/English/english")) "~latin1" iso-8859-1))
+  (defun my-ispell-dict-english ()
+    "Switch to the my-english dictionary."
+    (interactive)
+    (ispell-change-dictionary "ispell-dict-english"))
+  (require 'easymenu)
+  (easy-menu-add-item  nil '("tools" "spell")
+		       ["Select ispell-dict-english Dict" my-ispell-dict-english t])
+
+  (my-ispell-dict-english)
+  )
+					;(require 'ispell "ispell.el" plugin-ispell)
+
+;;----------------------------------------------------------
+;; Category Template
+;;----------------------------------------------------------
+;;{{-- YASnippet
+;;YASnippet is a template system for Emacs. It allows you to type an abbreviation and automatically expand it into function templates.
+
+(defun plugin-yasnippet (librarydir)
+  "plugin yasnippet"
+  (interactive)
+  (yas-global-mode 1)
+  (yas-load-directory (concat librarydir "/snippets"))
+  ;; default TAB key is occupied by auto-complete
+  (global-set-key (kbd "C-c ; u") 'yas/expand)
+  ;; default hotkey `C-c & C-s` is still valid
+  (global-set-key (kbd "C-c ; s") 'yas/insert-snippet)
+  ;; use yas/completing-prompt when ONLY when `M-x yas/insert-snippet'
+  (defadvice yas-insert-snippet (around use-completing-prompt activate)
+    "Use `yas-completing-prompt' for `yas-prompt-functions' but only here..."
+    (let ((yas-prompt-functions '(yas-completing-prompt)))
+      ad-do-it))
+  )
+(plugin 'yasnippet "yasnippet.el" plugin-yasnippet)
+
+
+;;----------------------------------------------------------
+;; Category Undo
+;;----------------------------------------------------------
+;;{{-- undo tree
+(defun plugin-undo-tree (librarydir)
+  "plugin undo-tree"
+  (interactive)
+  )
+					;(plugin 'undo-tree "undo-tree.el" plugin-undo-tree)
+
+
+
+;;{{-- browse-kill-ring
+(defun plugin-browse-kill-ring (librarydir)
+  "plugin browse-kill-ring"
+  (interactive)
+  (global-set-key (kbd "C-c k") 'browse-kill-ring)
+					;(browse-kill-ring-default-keybindings)
+  )
+(plugin 'browse-kill-ring "browse-kill-ring.el" plugin-browse-kill-ring)
+
+;;{{-- smex
+;;Smex is a M-x enhancement for Emacs. Built on top of IDO, it provides a convenient interface to your recently and most frequently used commands. And to all the other commands, too.
+(defun plugin-smex (librarydir)
+  "plugin smex"
+  (interactive)
+  ;;-- Delayed Initiation
+  (global-set-key [(meta x)] (lambda ()
+			       (interactive)
+			       (or (boundp 'smex-cache)
+				   (smex-initialize))
+			       (global-set-key [(meta x)] 'smex)
+			       (smex)))
+
+  (global-set-key [(shift meta x)] (lambda ()
+				     (interactive)
+				     (or (boundp 'smex-cache)
+					 (smex-initialize))
+				     (global-set-key [(shift meta x)] 'smex-major-mode-commands)
+				     (smex-major-mode-commands)))
+  ;;-- Hyphen on Space
+  (defadvice smex (around space-inserts-hyphen activate compile)
+    (let ((ido-cannot-complete-command
+	   `(lambda ()
+	      (interactive)
+	      (if (string= " " (this-command-keys))
+		  (insert ?-)
+		(funcall ,ido-cannot-complete-command)))))
+      ad-do-it))
+  ;;-- Update less often
+  (defun smex-update-after-load (unused)
+    (when (boundp 'smex-cache)
+      (smex-update)))
+  (add-hook 'after-load-functions 'smex-update-after-load)
+  ;;-- Using acronyms
+  (defadvice ido-set-matches-1 (after ido-acronym-matches activate)
+    (if (> (length ido-text) 1)
+	(let ((regex (concat "^" (mapconcat 'char-to-string ido-text "[^-]*-")
+			     "[^-]*$")))
+	  (setq ad-return-value
+		(append (reverse (remove-if-not (lambda (i)
+						  (string-match regex i)) items))
+			ad-return-value)))))
+  )
+(plugin 'smex "smex.el" plugin-smex)
+
+
+
+
+;;{{-- ascii
+(require 'ascii "ascii.el")
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - Programming
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- ctypes
+;;Enhanced Font lock support for custom defined types.
+(defun plugin-ctypes (librarydir)
+  "plugin ctypes"
+  (interactive)
+  (ctypes-auto-parse-mode t)
+  )
+(plugin 'ctypes "ctypes.el" plugin-ctypes)
+
+;;{{-- c-eldoc
+(defun plugin-c-eldoc (librarydir)
+  "plugin c-eldoc"
+  (interactive)
+  (setq eldoc-echo-area-use-multiline-p t)
+  (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
+  )
+(plugin 'c-eldoc "c-eldoc.el" plugin-c-eldoc)
+
+
+;;{{-- Cscope
+(defun plugin-cscope (librarydir)
+  "plugin cscope"
+  (interactive)
+					;(add-hook 'c-mode-common-hook '(lambda () (require 'xcscope)))   ;only c-mode
+  (setq-default cscope-display-cscope-buffer nil)
+  )
+(plugin 'xcscope (fun-path "contrib/xcscope/xcscope.el") plugin-cscope)
+
+;;{{-- CEDET
+(defun plugin-cedet (librarydir)
+  "plugin cedet"
+  (interactive)
+
+  ;;See cedet/common/cedet.info for configuration details.
+
+  ;;[[-- Semantic
+  (add-hook 'speedbar-load-hook (lambda () (require 'semantic-sb)))
+
+  ;; * This enables some tools useful for coding, such as summary mode  imenu support, and the semantic navigator
+  (semantic-load-enable-code-helpers)
+
+  ;;--Idle Schedule
+  ;;C-h m : view semantic-idle-scheduler-mode minor mode is enabled
+  (setq semantic-idle-scheduler-timer 1)  ;;Timer used to schedule tasks in idle time. default value is 2 seconds
+
+  (require 'semantic-c nil 'noerror)      ;;required by semantic-add-system-include
+
+  ;;--semantic include
+  ;;In C/C++ code, semantic tries to distinguish between project and system headers based on `""' or `<>' delimiters.
+  ;;project include(" " delimiter)
+  (setq semanticdb-project-roots (list (expand-file-name "/")))
+
+  ;;system include(< > delimiter)
+  ;;o;;(let ((system-include-dirs const-system-include-dir-list-project))
+  ;;o;;  (setq system-include-dirs
+  ;;o;;    (append system-include-dirs const-system-include-dir-list-kernel))
+  ;;o;;  (when (eq system-type 'windows-nt)
+  ;;o;;    (setq system-include-dirs
+  ;;o;;      (append system-include-dirs const-system-include-dir-list-win32)))
+  ;;o;;  (mapc (lambda (dir)
+  ;;o;;          (semantic-add-system-include dir 'c++-mode)
+  ;;o;;          (semantic-add-system-include dir 'c-mode))
+  ;;o;;        system-include-dirs))
+
+  (setq system-include-mode-list (list
+				  'c++-mode
+				  'c-mode
+				  ))
+
+  (defun fun-add-system-includes (dir-list &optional mode-list)
+    "add system include dirs"
+    (mapc
+     (lambda (dir)
+       (if (not mode-list) (semantic-add-system-include dir)
+	 (mapc
+	  (lambda (mode)
+	    (semantic-add-system-include dir mode)
+	    ) mode-list))
+       ) dir-list)
+    )
+  ;;C-h v semantic-dependency-system-include-path : view the value have set under mode when open a c file
+  (fun-add-system-includes system-include-dir-list system-include-mode-list)
+
+  ;;semantic jump
+  (defun fun-semantic-ia-fast-jump-back()
+    "jump back of semantic-ia-fast-jump"
+    (interactive)
+    (if (ring-empty-p (oref semantic-mru-bookmark-ring ring)) (error "Semantic Bookmark ring is currently empty"))
+    (let*
+	((ring (oref semantic-mru-bookmark-ring ring))
+	 (alist (semantic-mrub-ring-to-assoc-list ring))
+	 (first (cdr (car alist))) )
+      (when (semantic-equivalent-tag-p (oref first tag) (semantic-current-tag)) (setq first (cdr (car (cdr alist)))))
+      (semantic-mrub-switch-tags first)
+      )
+    )
+  (defun fun-semantic-ia-fast-jump-or-back (&optional back)
+    "jump or jump back with semantic-ia-fast-jump"
+    (interactive "P")
+    (if back (semantic-ia-fast-jump-back)
+      (semantic-ia-fast-jump (point))
+      )
+    )
+  (defun fun-setup-semantic-jump-keybindings()
+      "semantic-jump keybindings.  
+  jump in the same file only with semantic, prefer to use cscope for cross-file . cross-file jump with semantic is so slow"
+      (local-set-key [f12] 'semantic-ia-fast-jump)
+      (local-set-key [S-f12] 'fun-semantic-ia-fast-jump-back)
+      ;;(local-set-key [C-f12] 'fun-semantic-ia-fast-jump-or-back)  -- not right
+      (define-key c-mode-base-map [M-S-f12] 'semantic-analyze-proto-impl-toggle)
+      (define-key c-mode-base-map (kbd "M-n") 'semantic-ia-complete-symbol-menu)
+      )
+  (add-hook 'c-mode-hook 'fun-setup-semantic-jump-keybindings)
+  (add-hook 'c++-mode-hook 'fun-setup-semantic-jump-keybindings)
+
+  ;;semantic jump with stack
+  (defvar var-mru-tag-stack
+    '()
+    "Tag stack, when jumping to new tag, current tag will be stored here, and when jumping back, it will be removed."
+    )
+  (defun fun-push-mru-tag (point)
+    "Push tag info into var-mru-tag-stack"
+    (interactive "d")
+    (let* ((tag (semantic-mrub-find-nearby-tag point)))
+      (if tag
+	  (let ((bookmark (semantic-bookmark (semantic-tag-name tag) :tag tag)))
+	    (semantic-mrub-update bookmark point 'mark)
+	    (add-to-list 'var-mru-tag-stack bookmark)
+	    (prin1 (format "push tag [%s]" (semantic-tag-name tag)))
+	    )
+	(error "No tag to push!"))
+      )
+    )
+  (defun fun-push-mru-tag-and-ia-fast-jump(point)
+    "Push tag of current postion and call (semantic-ia-fast-jump)"
+    (interactive "d")
+    (fun-push-mru-tag point)
+    (semantic-ia-fast-jump point)
+    )
+  (defun fun-push-mru-tag-and-complete-jump(point)
+    "Push tag of current postion and call (semantic-ia-complete-jump)"
+    (interactive "d")
+    (fun-push-mru-tag point)
+    (semantic-complete-jump)
+    )
+  (defun fun-push-mru-tag-and-symref (point)
+    "Push tag of current postion and call (semantic-symref)"
+    (interactive "d")
+    (fun-push-mru-tag point)
+    (semantic-symref)
+    )
+  (defun fun-pop-mru-tag-and-switch-tags()
+    "Pop tag and Return to point of  previous tag."
+    (interactive)
+    (if (car var-mru-tag-stack)
+	(semantic-mrub-switch-tags (pop var-mru-tag-stack))
+      (error "var-mru-tag-stack is empty!")
+      )
+    )
+  (defun fun-setup-semantic-stack-jump-keybindings()
+    "semantic-mru-tag-stack-jump keybindings : prefix m for mru"
+    (interactive)
+    (local-set-key "\C-cmj" 'fun-push-mru-tag-and-ia-fast-jump)
+    (local-set-key "\C-cmJ" 'fun-push-mru-tag-and-complete-jump)
+    (local-set-key "\C-cmr" 'fun-push-mru-tag-and-symref)
+    (local-set-key "\C-cmu" 'fun-pop-mru-tag-and-switch-tags)
+    (local-set-key (kbd "C-c m SPC") 'fun-push-mru-tag)
+    )
+  (add-hook 'c-mode-hook 'fun-setup-semantic-stack-jump-keybindings)
+
+  ;;semanticdb
+  (require 'semanticdb)
+  (global-semanticdb-minor-mode 1)
+  ;;jump in the same file only with semantic, prefer to use cscope for cross-file . cross-file jump with semantic is so slow
+  (defun fun-set-semanticdb-find-default-throttle()
+    "set semanticdb-find-default-throttle"
+    (interactive)
+    (setq-mode-local
+     c-mode
+     semanticdb-find-default-throttle '(
+					file
+					unloaded
+					system
+					project
+					recursive
+					)
+     )
+    )
+  (fun-set-semanticdb-find-default-throttle)
+  )
+
+;;move built-in cedet out of directory lisp to lisp-backup for emacs 24.3
+(plugin 'cedet "common/cedet.el" plugin-cedet)
+;;--}} CEDET
+
+;;{{-- ECB
+;; Load the ECB first after starting if by `ecb-activate'
+(defun plugin-ecb (librarydir)
+  "plugin ecb"
+  (interactive)
+  ;;ecb-upgrade.el : ecb is to old
+  (defconst ecb-required-cedet-version-max '(1 2 4 9))
+  (setq stack-trace-on-error t)
+
+  ;;Each source-path is the starting-node of the complete directory-structure below this path and can be browsed with the directories-interactor.
+  (setq ecb-source-path `(
+			  (,(fun-path "$SRC/linux-2.6.32.60/") "linux-2.6.32.60")
+			  (,(fun-path "$SRC/httpd-2.2.24/") "httpd-2.2.24")
+			  (,(fun-path "$SRC") "src")
+			  )
+	)
+
+  ;;--ECB Autoload & Autoactivate
+  (require 'ecb-autoloads)
+					;(setq ecb-auto-activate t)
+
+  (defun fun-setup-ecb-keybindings()
+    "ecb keybindings : t for toggle, e for ecb"
+    (interactive)
+    (local-set-key "\C-cte" 'ecb-minor-mode)
+    )
+  (add-hook 'c-mode-hook 'fun-setup-ecb-keybindings)
+
+  ;;--ECBLayout
+  (let ((ecb-cust-layout-file (fun-path "$EMACSD/emacs-ecb-cust-layout.el")))
+    (when (file-readable-p ecb-cust-layout-file) (load-file ecb-cust-layout-file)))
+
+  (defun fun-ecb-layout-switch (layout-name)
+    "set ecb-layout"
+    (interactive "slayout-name:")
+    (when (not (ecb-find-assoc-value layout-name ecb-layout-window-sizes)) (cond
+									    ((string-equal layout-name "leftright1")
+									     (add-to-list 'ecb-layout-window-sizes (quote
+														    ("leftright1"
+														     (0.17 . 0.2)
+														     (0.17 . 0.3)
+														     (0.17 . 0.4)
+														     (0.25 . 0.9)
+														     ))))
+									    ((string= layout-name "top1")
+									     (add-to-list 'ecb-layout-window-sizes
+											  '("top1"
+											    (0.25 . 0.3)
+											    (0.25 . 0.3)
+											    (0.5 . 0.3)
+											    )))
+									    ((string= layout-name "left9")
+									     (add-to-list 'ecb-layout-window-sizes
+											  '("left9"
+											    (0.25 . 0.9)
+											    )))
+
+									    (t
+									     (error (format "%s is not in the case, please add it" layout-name))
+									     )
+									    ))
+    (ecb-layout-switch layout-name)
+    )
+  (fun-ecb-layout-switch "right-m")
+
+  ;;--ECB Misc
+  (setq ecb-tip-of-the-day nil)       ;;Show tip of the day at start time of ECB.
+
+  )
+
+(when (featurep 'cedet) (plugin 'ecb "ecb.el" plugin-ecb))
+;;--}} ECB
+
+;;----------------------------------------------------------
+;; File management
+;;----------------------------------------------------------
+;;{{-- sr-speedbar
+(defun plugin-sr-speedbar (librarydir)
+  "plugin sr-speedbar"
+  (interactive)
+  (setq sr-speedbar-width 50)
+  (setq sr-speedbar-max-width 100)
+  (global-set-key "\C-cts" 'sr-speedbar-toggle)
+  )
+(plugin 'sr-speedbar "sr-speedbar.el" plugin-sr-speedbar)
+
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - Programmer Utils
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;----------------------------------------------------------
+;; File changes
+;;----------------------------------------------------------
+;;{{-- ediff-trees
+(defun plugin-ediff-trees (librarydir)
+  "plugin ediff-trees"
+  (interactive)
+  )
+(plugin 'ediff-trees "ediff-trees.el" plugin-ediff-trees)
+
+;;{{-- dircmp-mode
+(defun plugin-dircmp-mode (librarydir)
+  "plugin dircmp-mode"
+  (interactive)
+  (setq-default dircmp-compare-permissions nil)
+  (setq-default dircmp-compare-times nil)
+  (setq-default dircmp-compare-group nil)
+  (setq-default dircmp-compare-owner nil)
+  )
+(plugin 'dircmp-mode "dircmp-mode/dircmp.el" plugin-dircmp-mode)
+
+;;----------------------------------------------------------
+;; Documenting code
+;;----------------------------------------------------------
+;;{{-- doxymacs
+(defun plugin-doxymacs (librarydir)
+  "plugin doxymacs"
+  (interactive)
+  (add-hook 'c-mode-common-hook 'doxymacs-mode)
+  )
+
+(when (file-exists-p (fun-path "$EMACSD/site-lisp/doxymacs-1.8.0"))
+  ;; doxymacs need xmlparse
+  (add-to-list 'load-path (fun-path "$EMACSD/site-lisp/doxymacs-1.8.0/no-autconf"))
+  (plugin 'doxymacs "doxymacs.el" plugin-doxymacs)
+  )
+
+(defun my-javadoc-return ()
+  "Advanced `newline' command for Javadoc multiline comments. Insert a `*' at the beggining of the new line if inside of a comment."
+  (interactive "*")
+  (let* ((last (point))
+	 (is-inside
+	  (if (search-backward "*/" nil t)
+	      ;; there are some comment endings - search forward
+	      (search-forward "/*" last t)
+	    ;; it's the only comment - search backward
+	    (goto-char last)
+	    (search-backward "/*" nil t))))
+
+    ;; go to last char position
+    (goto-char last)
+
+    ;; the point is inside some comment, insert `*'
+    (if is-inside
+	(progn
+	  (newline-and-indent)
+	  (insert "*"))
+      ;; else insert only new-line
+      (newline))))
+
+(add-hook 'c-mode-hook (lambda () (local-set-key (kbd "<RET>") 'my-javadoc-return)))
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - External Utilities
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;----------------------------------------------------------
+;; RFC relative
+;;----------------------------------------------------------
+;;{{-- rfc
+;;ref : http://www.emacswiki.org/emacs/rfc-el
+;;You may need to comment out (require 'w3) line if you do not have a w3 package installed (since it is too old).
+;; sed -i -e 's/ (require.*w3)/;&/' rfc.el
+;;Usage : After installation & configuration, try  M-x rfc-index
+(defun plugin-rfc (librarydir)
+  "plugin rfc"
+  (interactive)
+
+  (setq rfc-url-save-directory (fun-path "$DOC/rfc/cache"))
+  (setq rfc-index-url "http://www.ietf.org/rfc/rfc-index.txt")
+  (setq rfc-archive-alist (list
+			   (concat rfc-url-save-directory "/rfc.zip")
+			   rfc-url-save-directory
+			   "http://www.ietf.org/rfc/"
+			   ))
+  (setq rfc-insert-content-url-hook '(rfc-url-save))
+  ;;Key bindings
+  (defvar rfc-index-mode-map nil "Keymap for RFC index mode")
+  (if rfc-index-mode-map nil
+    (setq rfc-index-mode-map (make-sparse-keymap))
+    (suppress-keymap rfc-index-mode-map)
+    (let ((map rfc-index-mode-map))
+      (define-key map "\C-m" 'rfc-index-goto-nearest)
+      (define-key map "g" 'rfc-goto-number)
+      (define-key map "\C-j" 'rfc-index-follow-nearest)
+      (define-key map "f" 'rfc-index-follow-number)
+      (define-key map "o" 'rfc-index-follow-obsoleted)
+      (define-key map "O" 'rfc-index-follow-obsoletes)
+      (define-key map "u" 'rfc-index-follow-updates)
+      (define-key map "U" 'rfc-index-follow-updated)
+      (define-key map [mouse-2] 'rfc-index-mouse-2)
+      (define-key map "n" 'scroll-up)
+      (define-key map "p" 'scroll-down)
+      (define-key map " " 'scroll-up)
+      (define-key map "\C-?" 'scroll-down)
+      (define-key map "s" 'isearch-forward)
+      (define-key map "r" 'isearch-backward)
+      (define-key map "q" 'rfc-index-kill-buffer)
+      ))
+  )
+(plugin 'rfc "rfc.el" plugin-rfc)
+
+
+;;{{-- get-rfc
+(defun plugin-get-rfc (librarydir)
+  "plugin get-rfc"
+  (interactive)
+
+  (setq get-rfc-open-in-new-frame nil)
+  (setq get-rfc-local-rfc-directory (fun-path "$DOC/rfc/cache/"))
+  ;;(setq get-rfc-no-wget t)
+  (put 'rfc 'bounds-of-thing-at-point (lambda () (and
+						  (thing-at-point-looking-at "[Rr][Ff][Cc][- #]?\\([0-9]+\\)")
+						  (cons (match-beginning 0) (match-end 0)))))
+  (autoload 'get-rfc-view-rfc "get-rfc" "Get and view an RFC" t nil)
+  (autoload 'get-rfc-view-rfc-at-point "get-rfc" "View the RFC at point" t nil)
+  (autoload 'get-rfc-grep-rfc-index "get-rfc" "Grep rfc-index.txt" t nil)
+  )
+(plugin 'get-rfc "rfc/get-rfc.el" plugin-get-rfc)
+
+;;{{-- rfcview
+(defun plugin-rfcview (librarydir)
+  "plugin rfcview"
+  (interactive)
+
+  (autoload 'rfcview-mode "rfcview" nil t)
+
+  (let ((speedbar (fun-path "$EMACSD/site-lisp/cedet-1.1/speedbar")))
+    (when (file-exists-p speedbar)
+      (add-to-list 'load-path speedbar)
+      (eval-after-load "speedbar" '(load-library (concat librarydir "/sb-rfcview")))
+      ))
+  (custom-set-variables '(speedbar-supported-extension-expressions (append speedbar-supported-extension-expressions '("rfc[0-9]+\\.txt"))))
+  )
+(plugin 'rfcview "rfcview/rfcview.el" plugin-rfcview)
+
+;;{{-- irfc
+(defun plugin-irfc (librarydir)
+  "plugin irfc"
+  (interactive)
+
+  (setq irfc-buffer-name-includes-title nil)
+  (setq irfc-assoc-mode t)
+  (when (file-exists-p (fun-path "$DOC/rfc/RFC-all"))
+    (setq irfc-directory (fun-path "$DOC/rfc/RFC-all"))
+    )
+
+  (add-to-list 'load-path librarydir)
+  (require 'anything-irfc "irfc/anything-irfc" t)
+  )
+(plugin 'irfc "irfc/irfc.el" plugin-irfc)
+
+
+;;{{-- ffap-rfc
+(defun plugin-ffap-rfc (librarydir)
+  "plugin ffap-rfc"
+  (interactive)
+
+  (require 'ffap-rfc-directories)
+  (eval-after-load "ffap" '(require 'ffap-rfc-space))
+  (setq ffap-rfc-directories (fun-path-list '(
+					      "$DOC/rfc/cache"
+					      "$DOC/rfc/RFC-all"
+					      )))
+  (setq ffap-rfc-path "/anonymous@ftp.rfc-editor.org:/in-notes/rfc%s.txt")
+
+  (defadvice ffap-file-at-point (after ffap-file-at-point-after-advice ())
+    (if (string= ad-return-value "/")
+	(setq ad-return-value nil)))
+  (ad-activate 'ffap-file-at-point)
+  ;; (ad-deactivate 'ffap-file-at-point)
+  )
+					;(eval-after-load "ffap" '(plugin-ffap-rfc))
+
+;;--rfc
+					;(setq auto-mode-alist (cons '("/rfc[0-9]+\\.txt\\(\\.gz\\)?\\'" . rfcview-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '("/rfc[0-9]+\\.txt\\(\\.gz\\)?\\'" . irfc-mode) auto-mode-alist))
+
+
+
+;;{{-- dictionary
+					;(require 'dictionary "dictionary.el" t)
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Category Web Browser
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- emacs-w3m
+(defun plugin-w3m (librarydir)
+  "plugin emacs-w3m"
+  (interactive)
+  (setq browse-url-browser-function 'w3m-browse-url)
+  (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+  ;; optional keyboard short-cut
+  (global-set-key "\C-xm" 'browse-url-at-point)
+  (setq w3m-use-cookies t)
+  )
+					;(plugin 'w3m "w3m.el" plugin-w3m)
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Category Emulation
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- evil
+;;Evil is an extensible vi layer for Emacs. It provides Vim features like Visual selection and text objects, and is the successor to Vimpulse and vim-mode
+(defun plugin-evil  (librarydir)
+  "plugin evil"
+  (interactive)
+  (evil-mode 1)
+  )
+					;(plugin 'evil "evil.el" plugin-evil)
+
+;;{{-- vim-current-buffer
+(defun vim-current-buffer ()
+  (interactive)
+  "Open current buffer file in gvim"
+  (let ((gvim-program (fun-path "$SOFTWARE/Vim/vim74/gvim.exe"))
+	(gvim-file-name (buffer-file-name (current-buffer))))
+    (if gvim-file-name
+	(progn
+	  (kill-buffer (current-buffer) )
+	  ;; need to understand the start-process and how to handle the process exit
+	  ;; to be implemented: when process ends, will reopen file in emacs
+	  (setq result (start-process "gvim" nil gvim-program gvim-file-name)))
+      (error "Current buffer doesn't point to a file yet."))
+    (unless result (find-file gvim-file-name))))
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - Misc
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- helm
+(defun plugin-helm (librarydir)
+  "plugin helm"
+  (interactive)
+  )
+(plugin 'helm-config "helm-config.el" plugin-helm)
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;; Plugins - Useless
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;{{-- tree-widget
+(require 'dir-tree "dir-tree.el" t)
+
+;;{{-- gdiff
+(require 'gdiff "gdiff.el" t)
+
+;;{{-- findstr
+					;(autoload 'findstr "findstr" "Run Windows NT findstr to match expression in files." t)
+
+
+
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+;;Post Setup
+;;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+(fun-maximize-frame)
+
+					;(setq ecb-auto-activate t)
+
+(let ((cust-file (fun-path "$EMACSD/emacs-custom.el")))
+  (when (and (file-exists-p cust-file) (file-writable-p cust-file))
+    (load-file cust-file))
+  (setq custom-file cust-file)
+  )  

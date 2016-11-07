@@ -1,0 +1,5 @@
+console.log("I am the bone of my sword");
+var a=function(){
+console.log("ds");
+}
+

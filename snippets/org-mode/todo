@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: todo
+# key: todo
+# --
+* TODO
+** yesterday
+*** complate:	-->${1:'none'}	-->${2:'none'}
+*** lack:	-->${3:"none"}	-->${4:'none'}
+*** change	-->${5:'none'}  -->${6:'none'}
+** today
+*** hope	-->$2		-->${7:'none'}
+*** plan        -->${8:'none'}	-->${9:'none'}
+** tomorrow
+*** keep-on	--$3-->$4
+*** keep-on	--$5-->$6
+*** I'm goingto	--$7-->${10:"none"}
+*** I'm goingto	--$9-->${11:'none'}
+* FEEL
+** what I am considering and felt:$0;
+

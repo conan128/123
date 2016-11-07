@@ -1,0 +1,6 @@
+
+
+   int  main(  ){
+char a= " I am the bone of my sowrd" ;
+	return 0;
+	}

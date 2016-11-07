@@ -1,0 +1,28 @@
+ls
+vi a.txt
+vi a.coffe
+ls
+rm -rf a.txt
+cf a.coffee
+coffee a.coffee
+mv a.coffe a.coffee
+cf a.coffee 
+coffee a.coffee 
+ec a.coffee 
+vi a.coffee
+ls
+vi a.coffee
+coffee a.coffee 
+ls
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+coffee a.coffee
+exit
+(let ((softs '(auctex auto-complete cdlatex-mode slime yasnippet)))  (dolist (obj softs)    (el-get-install obj)))
+(+ 2 3)
+exit

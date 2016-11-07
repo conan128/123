@@ -1,0 +1,15 @@
+<html ng-app="${1:myApp}">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+$0  
+</head>
+
+<body  class="ng-scope">
+  <div class="container">
+  </div>
+</body>
+</html>

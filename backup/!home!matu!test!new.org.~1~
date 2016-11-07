@@ -1,0 +1,27 @@
+* myfirstorg
+** biaoti2
+*** biaoti3
+**** biaoti4
+***** biaoti5
+****** biaoti6
+******* biaoti7
++ treeroot
+  + barnch1
+  + branch2
+
+    branch3
+[-] renwu [33%]
+ [ ] zirenwu1
+ [x] zirenwu2
+ [ ] zirenwu3
+ [ ] renwu2
+ 
+input | Name | Phone | sub1 | sub2 | total |
+
+| long      | guo | song | is |  me |     |
+|-----------+-----+------+----+-----+-----|
+| wizar     | 153 |   78 | 95 | sdf | 173 |
+| heeloword |  12 |   12 | 12 | 232 |  24 |
+| maple     | 134 |   23 | 23 |  34 |  46 |
+| hehe      | 157 |   87 | 78 |   0 | 165 |
+#+TBLFM: $6=$3+$4

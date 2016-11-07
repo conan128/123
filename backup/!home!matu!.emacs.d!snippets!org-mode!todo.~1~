@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: myyas
+# key: myyas
+# --
+"I am the bone of my sword"
+FILE *${0:fp} = fopen(${1:"file"}, "${2:r}");

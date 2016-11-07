@@ -1,0 +1,8 @@
+#contributor : ljp <ljp.gogo@gmail.com>
+#name : Create a 51 interrupt function
+# --
+
+void int${1:var1}() interrupt ${2:var2} using ${3:var3} 
+{ 
+${0:}
+}

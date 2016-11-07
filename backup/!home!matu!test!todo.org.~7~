@@ -1,0 +1,48 @@
+
+#+INFOJS_OPTS: view:info
+# +BEGIN_QUOTE
+Everything should be made as simple as possible
+but not any simpler --Albert Einstein
+# +END-QUOTE
+** TODO todo xjiyifu
+*** TODO todo[#a]a1
+*** todo todo[#b]b1
+
+*** TODO todo zongrenwu[50%]
+    ***
+* TODO todo zirenwu1
+     todo todo zirenwu2
+     -[-] subsub1[1/2]
+     -[ ] subsub2
+     -[x] subsub3
+**** DONE done yigewanchengde
+   
+     <2016-11-06 日>
+** TODO todo xjiyifu
+*** TODO todo[#a]a1
+*** todo todo[#b]b1
+
+*** TODO todo zongrenwu[50%]
+***
+* TODO todo zirenwu1
+     todo todo zirenwu2
+     -[-] subsub1[1/2]
+     -[ ] subsub2
+     -[x] subsub3
+**** DONE done yigewanchengde
+   
+     <2016-11-06 日>
+** TODO todo xjiyifu
+*** TODO todo[#a]a1
+*** todo todo[#b]b1
+
+*** TODO todo zongrenwu[50%]
+***
+* TODO todo zirenwu1
+     todo todo zirenwu2
+     -[-] subsub1[1/2]
+     -[ ] subsub2
+     -[x] subsub3
+**** DONE done yigewanchengde
+   
+     <2016-11-06 日>

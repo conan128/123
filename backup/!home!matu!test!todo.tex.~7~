@@ -1,0 +1,58 @@
+% Created 2016-11-06 日 17:12
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\usepackage{xeCJK}
+\setCJKmainfont{Songti SC}
+\author{longguosong}
+\date{\today}
+\title{todo}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 24.4.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+Everything should be made as simple as possible
+but not any simpler --Albert Einstein
+\subsection{{\bfseries\sffamily TODO} todo xjiyifu}
+\label{sec-0-1}
+\subsubsection{{\bfseries\sffamily TODO} todo[\#a]a1}
+\label{sec-0-1-1}
+\subsubsection{todo todo[\#b]b1}
+\label{sec-0-1-2}
+
+\subsubsection{{\bfseries\sffamily TODO} todo zongrenwu[50\%]}
+\label{sec-0-1-3}
+\textbf{*}
+\section{{\bfseries\sffamily TODO} todo zirenwu1}
+\label{sec-1}
+todo todo zirenwu2
+-[-] subsub1[1/2]
+-[ ] subsub2
+-[x] subsub3
+\begin{enumerate}
+\item {\bfseries\sffamily DONE} done yigewanchengde
+\label{sec-1-0-0-1}
+
+\textit{<2016-11-06 日>}
+\end{enumerate}
+% Emacs 24.4.1 (Org mode 8.2.10)
+\end{document}

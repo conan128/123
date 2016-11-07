@@ -1,0 +1,62 @@
+% Created 2016-11-07 一 18:18
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\author{longguosong}
+\date{\today}
+\title{1106}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 24.4.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{{\bfseries\sffamily TODO} }
+\label{sec-1}
+\subsection{yesterday}
+\label{sec-1-1}
+\subsubsection{complate:        -->emacs        -->emacsed}
+\label{sec-1-1-1}
+\subsubsection{lack:        -->word        -->ppt}
+\label{sec-1-1-2}
+\subsubsection{change        -->work  -->orgmode}
+\label{sec-1-1-3}
+\subsection{today}
+\label{sec-1-2}
+\subsubsection{hope        -->emacsed                -->ppt}
+\label{sec-1-2-1}
+\subsubsection{plan        -->angular        -->hichart}
+\label{sec-1-2-2}
+\subsection{tomorrow}
+\label{sec-1-3}
+\subsubsection{keep-on        --word-->ppt}
+\label{sec-1-3-1}
+\subsubsection{keep-on        --work-->orgmode}
+\label{sec-1-3-2}
+\subsubsection{I'm goingto        --ppt-->ppts}
+\label{sec-1-3-3}
+\subsubsection{I'm goingto        --hichart-->echart}
+\label{sec-1-3-4}
+\section{FEEL}
+\label{sec-2}
+\subsection{what I am considering and felt:I am the bone of my sword;}
+\label{sec-2-1}
+% Emacs 24.4.1 (Org mode 8.2.10)
+\end{document}

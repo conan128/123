@@ -1,0 +1,193 @@
+
+;;快速定位行
+(global-set-key [(C-f12)] 'goto-line)
+;; 关闭工具栏，tool-bar-mode 即为一个 Minor Mode
+(tool-bar-mode 0)
+
+;;关闭菜单栏
+(menu-bar-mode 0)
+;; 关闭文件滑动控件
+(scroll-bar-mode -1)
+
+;; 显示行号
+(global-linum-mode 1)
+
+;; 更改光标的样式（不能生效，解决方案见第二集）
+(setq cursor-type 'bar)
+
+;; 关闭启动帮助画面
+(setq inhibit-splash-screen 1)
+
+;; 关闭缩进 (第二天中被去除)
+;; (electric-indent-mode -1)
+
+;; 更改显示字体大小 16pt
+(set-face-attribute 'default nil :height 175)
+
+;; 快速打开配置文件
+;;(defun open-init-file()
+;;(interactive)
+;;(find-file "~/.emacs"))
+;; 这一行代码，将函数 open-init-file 绑定到 <f2> 键上
+;;(global-set-key ("") 'open-init-file)
+
+;;语法高亮
+(require 'org)
+(setq org-src-fontify-natively t)
+;;主题
+;;(load-theme 'Arjin 1)
+;;(require 'color-theme)
+;;(color-theme-initialize)
+;;(color-theme-sitaramv-nt)
+;; 关闭出错时的蜂鸣提示声
+(setq visible-bell t)
+;; 尽快显示按键序列
+(setq echo-keystrokes 0.1)
+;;在minibuffer里启用自动补全函数和变量
+(icomplete-mode 1)
+;; Linux 下复制内容到系统的剪切板
+(setq x-select-enable-clipboard t)
+;; 启用部分补全功能，如输入M-x q r r相当于M-x query-replace-regexp
+;;(partial-completion-mode 1)
+
+;; 在emacs读man文档时，使用当前buffer
+(setq Man-notify-method 'pushy)
+;;启用备份
+(setq version-control t)
+;;备份最原始的版本两次，记第一次编辑前的文档，和第二次编辑前的文档
+(setq kept-old-versions 2)
+;;备份最新的版本5次，理解同上
+(setq kept-new-versions 5)
+;;删掉不属于以上7版本的版本
+(setq delete-old-versions t)
+;;设置备份文件的路径
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup")))
+;;备份设置方法，直接拷贝
+;;(setq backup-by-copying(global-set-key (kbd "C-c k") 
+;; 不生成名为#filename#的临时文件
+(setq auto-save-default nil)
+;; 自动保存
+(setq auto-save-mode t)
+;;自动重载更改的文件
+(global-auto-revert-mode 1)
+;;将C-F10绑定为显示菜单栏
+(global-set-key [(C-f10)] 'menu-bar-mode)
+
+;;光标靠近鼠标指针时，让鼠标指针自动让开，别挡住视线
+(mouse-avoidance-mode 'animate)
+
+;;支持emacs和外部程序的粘贴
+(setq x-select-enable-clipboard t)
+
+;; Tell Emacs fill commands to insert two after a colon
+(setq colon-double-space t)
+
+;; 在文档最后自动插入空白行
+(setq require-final-newline t)
+
+;;括号匹配时显示另外一边的括号，而不是烦人的跳到另一个括号
+(show-paren-mode t)
+(setq show-paren-style 'parentheses)
+
+;;在标题栏显示buffer的名字.区分不同的主机和用户名称
+(setq frame-title-format '((:eval (getenv-internal "LOGNAME"))"@"(:eval (system-name))":"(:eval (or (buffer-file-name) (buffer-name)))))
+
+;;设置字体颜色为黑色，默认为黑色
+(set-foreground-color "grey")
+;;设置背景为黑色，默认为白色，你也可以自由设置其它颜色
+(set-background-color "black")
+;;设置光标的颜色为金黄，默认为黑色
+(set-cursor-color "gold1")
+;;设置鼠标的颜色
+(set-mouse-color "gold1")
+
+;; 设置语法高亮显示的背景和主题，区域选择的背景和主题，二次选择的背景和选择
+(set-face-foreground 'highlight "white")
+(set-face-background 'highlight "blue")
+(set-face-foreground 'region "cyan")
+(set-face-background 'region "blue")
+(set-face-foreground 'secondary-selection "skyblue")
+(set-face-background 'secondary-selection "darkblue")
+
+
+;; 最大化
+(defun my-maximized ()
+  (interactive)
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(2 "_NET_WM_STATE_MAXIMIZED_HORZ" 0))
+  (x-send-client-message
+   nil 0 nil "_NET_WM_STATE" 32
+   '(2 "_NET_WM_STATE_MAXIMIZED_VERT" 0))
+  )
+
+;; 启动emacs时窗口最大化
+(my-maximized)
+;;启用时间显示设置，在minibuffer上面的那个杠上
+(display-time-mode 1)
+
+;;时间使用24小时制
+(setq display-time-24hr-format t)
+
+;;时间显示包括日期和具体时间
+(setq display-time-day-and-date t)
+(setq-default auto-fill-function 'do-auto-fill)
+(setq show-paren-mode t)
+
+;;自动补全右边的部分.包括<>, "", '', (), //, [] , {}等等。
+(defun my-c-mode-auto-pair ()
+  (interactive)
+  (make-local-variable 'skeleton-pair-alist)
+  (setq skeleton-pair-alist '(
+
+			      ;;自动补全<>
+			      (?\< ? _ ">")
+
+			      ;;自动补全//
+			      (?` ?` _ "/")
+
+			      ;;自动补全()
+			      (?\( ? _ " )")
+
+			      ;;自动补全[]
+			      (?\[ ? _ " ]")
+
+			      ;;设自动补全""
+			      (?\" ? _ "\"")
+
+			      ;;自动补全''
+			      (?\' ? _ "'")
+
+			      ;;自动补全{}
+			      (?{ \n > _ \n ?} >)))
+
+  (setq skeleton-pair t)
+  (local-set-key (kbd "<") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "/") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "(") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "/") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "'") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "[") 'skeleton-pair-insert-maybe)
+  (local-set-key (kbd "{") 'skeleton-pair-insert-maybe))
+(add-hook 'c-mode-hook 'my-c-mode-auto-pair)
+(add-hook 'c++-mode-hook 'my-c-mode-auto-pair)
+(add-hook 'js2-mode-hook 'my-c-mode-auto-pair)
+    
+
+;;能把一个代码块缩起来，需要的时候再展开
+;; M-x hs-minor-mode
+;; C-c @ ESC C-s show all
+;; C-c @ ESC C-h hide all
+;; C-c @ C-s show block
+;; C-c @ C-h hide block
+;; C-c @ C-c toggle hide/show
+(load-library "hideshow")
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
+(add-hook 'java-mode-hook 'hs-minor-mode)
+(add-hook 'perl-mode-hook 'hs-minor-mode)
+(add-hook 'php-mode-hook 'hs-minor-mode)
+(add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
+(add-hook 'html-mode-hook 'hs-minor-mode)
+(provide-theme 'mysettings)
