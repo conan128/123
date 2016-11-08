@@ -70,7 +70,7 @@
 </div>
 
 <script>
-angular.module('myApp', []).controller($1, function($scope) {
+angular.module('myApp', []).controller('$1', function($scope) {
 $scope.fName = '';
 $scope.lName = '';
 $scope.passw1 = '';
