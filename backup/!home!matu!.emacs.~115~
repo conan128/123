@@ -7,14 +7,14 @@
 ;; |  | /~~\ | \| /~~\ \__> |___  |  | |___ | \|  |
 ;;(package-initialize)
 
-(custom-set-variables
+;;(custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-screen t)
- '(send-mail-function (quote smtpmail-send-it)))
-(put 'upcase-region 'disabled nil)
+ ;;'(inhibit-startup-screen t)
+ ;;'(send-mail-function (quote smtpmail-send-it)))
+;;(put 'upcase-region 'disabled nil)
 
 ;;注释反注释
 (defun qiang-comment-dwim-line (&optional arg)
@@ -27,7 +27,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))
     (comment-dwim arg)))
-(global-set-key "\M-1" 'qiang-comment-dwim-line)
+(global-set-key "\M-p" 'qiang-comment-dwim-line)
 ;;语法高亮
 (require 'org)
 (setq org-src-fontify-natively t)
@@ -116,6 +116,17 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require 'mime-w3m) 
 (setq w3m-default-display-inline-image t) 
 (setq w3m-default-toggle-inline-images t)
+;;文件切换
+(require 'swbuff)
+(global-set-key (kbd "C-[") 'swbuff-switch-to-previous-buffer)
+(global-set-key (kbd "C-]") 'swbuff-switch-to-next-buffer)
+(setq swbuff-exclude-buffer-regexps 
+     '("^ " "\\*.*\\*"))
+
+(setq swbuff-status-window-layout 'scroll)
+(setq swbuff-clear-delay 1)
+(setq swbuff-separator "|")
+(setq swbuff-window-min-text-height 1)
 
 ;;自己的设置
 (require 'mysettings)

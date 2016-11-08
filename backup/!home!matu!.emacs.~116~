@@ -7,14 +7,14 @@
 ;; |  | /~~\ | \| /~~\ \__> |___  |  | |___ | \|  |
 ;;(package-initialize)
 
-(custom-set-variables
+;;(custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-screen t)
- '(send-mail-function (quote smtpmail-send-it)))
-(put 'upcase-region 'disabled nil)
+ ;;'(inhibit-startup-screen t)
+ ;;'(send-mail-function (quote smtpmail-send-it)))
+;;(put 'upcase-region 'disabled nil)
 
 ;;注释反注释
 (defun qiang-comment-dwim-line (&optional arg)
@@ -62,8 +62,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require 'subdirs)
 ;; Package Management
 ;; -----------------------------------------------------------------
-;;(require 'popup)
-;;(require 'auto-complete)
+(require 'popup)
+(require 'auto-complete)
 ;;(require 'init-packages)
 ;;(require 'frame-bufs)
 ;;(require 'init-moden)
@@ -119,4 +119,3 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;;自己的设置
 (require 'mysettings)
-

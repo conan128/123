@@ -391,7 +391,7 @@ it)"
 (kill-this-buffer);关闭customize窗口
 
 ;;    启动自动最大化
-(setq initial-frame-alist '((top . 0) (left . 0) (width . 170) (height .25)))
+;;(setq initial-frame-alist '((top . 0) (left . 0) (width . 80) (height .25)))
 ;;----------日程安排和约会提醒配置----------
 (setq todo-file-do "~/.todo/do")
 (setq todo-file-done "~/.todo/done")

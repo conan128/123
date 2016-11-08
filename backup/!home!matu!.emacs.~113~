@@ -7,14 +7,14 @@
 ;; |  | /~~\ | \| /~~\ \__> |___  |  | |___ | \|  |
 ;;(package-initialize)
 
-(custom-set-variables
+;;(custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(inhibit-startup-screen t)
- '(send-mail-function (quote smtpmail-send-it)))
-(put 'upcase-region 'disabled nil)
+ ;;'(inhibit-startup-screen t)
+ ;;'(send-mail-function (quote smtpmail-send-it)))
+;;(put 'upcase-region 'disabled nil)
 
 ;;注释反注释
 (defun qiang-comment-dwim-line (&optional arg)
@@ -37,14 +37,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;中文与外文字体设置
 ;; Setting English Font
-;;(set-face-attribute 'default nil :font "Mono 18")
-;;(set-fontset-font "fontset-default" 'unicode '("WenQuanYi Zen Hei"
-;;					       . "unicode-ttf"))
-(create-fontset-from-fontset-spec
-"-unknown-DejaVu Sans Mono-normal-normal-normal-*-20-*-*-*-m-0-fontset-myfontset")
-(set-fontset-font "fontset-myfontset" 'han "WenQuanYi Micro Hei Mono")
-(add-to-list 'default-frame-alist '(font . "fontset-myfontset"))
-
+(set-face-attribute 'default nil :font "Monospace 18")
+(set-fontset-font "fontset-default" 'unicode '("WenQuanYi Zen Hei"
+					       . "unicode-ttf"))
 
 ;;全局
 (defun open-init-file()
@@ -98,9 +93,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
            (let ((mark-even-if-inactive transient-mark-mode))
              (indent-region (region-beginning) (region-end) nil))))))
 
-;;PPT
-(require 'muse-mode)  
-(require 'muse-slidy) 
+
+
 ;;主题
 (require 'color-theme)
 ;;(require 'FlatUI)
@@ -109,7 +103,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   '(progn
      (color-theme-initialize)
      (color-theme-blackboard)))
- ;;使用Emacs-w3m浏览网页                                                                                                        
+;使用Emacs-w3m浏览网页                                                                                                        
 (add-to-list 'load-path "~/.emacs.d/elpa/w3m")
  (require 'w3m-load)
 (setq w3m-home-page "http://www.baidu.com")
@@ -117,13 +111,18 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (autoload 'w3m "w3m" "interface for w3m on emacs" t)
 (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
 (autoload 'w3m-search "w3m-search" "Search words using emacs-w3m." t)
-
-;settings
+;;settings
 (setq w3m-use-cookies t)
 (require 'mime-w3m) 
 (setq w3m-default-display-inline-image t) 
 (setq w3m-default-toggle-inline-images t)
 
+(require 'tabbar)
+(tabbar-mode)
+(global-set-key (kbd "\M-2") 'tabbar-backward-group)
+(global-set-key (kbd "\M-3") 'tabbar-forward-group)
+(global-set-key (kbd "\M-4") 'tabbar-backward)
+(global-set-key (kbd "\M-5") 'tabbar-forward)
 ;;自己的设置
 (require 'mysettings)
 
