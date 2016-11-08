@@ -37,11 +37,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;中文与外文字体设置
 ;; Setting English Font
-(set-face-attribute 'default nil :font "Monoco 18")
+(set-face-attribute 'default nil :font "Monospace 18")
 (set-fontset-font "fontset-default" 'unicode '("WenQuanYi Zen Hei"
 					       . "unicode-ttf"))
-
-
 
 ;;全局
 (defun open-init-file()
@@ -64,8 +62,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require 'subdirs)
 ;; Package Management
 ;; -----------------------------------------------------------------
-(require 'popup)
-(require 'auto-complete)
+;;(require 'popup)
+;;(require 'auto-complete)
 ;;(require 'init-packages)
 ;;(require 'frame-bufs)
 ;;(require 'init-moden)
@@ -95,9 +93,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
            (let ((mark-even-if-inactive transient-mark-mode))
              (indent-region (region-beginning) (region-end) nil))))))
 
-;;PPT
-(require 'muse-mode)  
-(require 'muse-slidy) 
+
+
 ;;主题
 (require 'color-theme)
 ;;(require 'FlatUI)
@@ -106,7 +103,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   '(progn
      (color-theme-initialize)
      (color-theme-blackboard)))
- ;;使用Emacs-w3m浏览网页                                                                                                        
+;使用Emacs-w3m浏览网页                                                                                                        
 (add-to-list 'load-path "~/.emacs.d/elpa/w3m")
  (require 'w3m-load)
 (setq w3m-home-page "http://www.baidu.com")
@@ -114,8 +111,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (autoload 'w3m "w3m" "interface for w3m on emacs" t)
 (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
 (autoload 'w3m-search "w3m-search" "Search words using emacs-w3m." t)
-
-;settings
+;;settings
 (setq w3m-use-cookies t)
 (require 'mime-w3m) 
 (setq w3m-default-display-inline-image t) 

@@ -26,8 +26,8 @@
 ;; 关闭缩进 (第二天中被去除)
 ;; (electric-indent-mode -1)
 
-;; 更改显示字体大小 175pt
-(set-face-attribute 'default nil :height 175)
+;; 更改显示字体大小 160pt
+(set-face-attribute 'default nil :height 160)
 
 
 ;;语法高亮
@@ -570,7 +570,7 @@ same directory as the org-buffer and insert a link to this file."
                      "~/doc/org/work.org"  
                      "~/doc/org/home.org"))
 ;;yasnippet
-;;(require 'yasnippet)
+
 ;;(yas-global-mode 1)
 ;;(require 'auto-complete)
 ;;(require 'auto-complete-config)
