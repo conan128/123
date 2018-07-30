@@ -1,5 +1,4 @@
 
-
 ;;快速定位行
 (global-set-key [(C-f12)] 'goto-line)
 ;; 关闭工具栏，tool-bar-mode 即为一个 Minor Mode
@@ -23,13 +22,6 @@
 ;; 关闭启动帮助画面
 (setq inhibit-splash-screen 1)
 
-;; 关闭缩进 (第二天中被去除)
-;; (electric-indent-mode -1)
-
-;; 更改显示字体大小 160pt
-(set-face-attribute 'default nil :height 160)
-
-
 ;;语法高亮
 (require 'org)
 (setq org-src-fontify-natively t)
@@ -37,6 +29,7 @@
 ;;(color-theme-sitaramv-nt)
 ;; 关闭出错时的蜂鸣提示声
 (setq visible-bell t)
+
 ;; 尽快显示按键序列
 (setq echo-keystrokes 0.1)
 ;;在minibuffer里启用自动补全函数和变量
@@ -277,8 +270,7 @@
 )
 
 (defun thing-copy-string-to-mark(&optional arg)
-" Try to copy a string and paste it to the mark
-When used in shell-mode, it will paste string on shell prompt by default "
+" Try to copy a string and paste it to the mark When used in shell-mode, it will paste string on shell prompt by default "
 (interactive "P")
 (copy-thing 'beginning-of-string 'end-of-string arg)
 (paste-to-mark arg))
@@ -299,8 +291,7 @@ When used in shell-mode, it will paste string on shell prompt by default "
 )
 
 (defun thing-copy-parenthesis-to-mark(&optional arg)
-" Try to copy a parenthesis and paste it to the mark
-When used in shell-mode, it will paste parenthesis on shell prompt by default "
+" Try to copy a parenthesis and paste it to the mark When used in shell-mode, it will paste parenthesis on shell prompt by default "
 (interactive "P")
 (copy-thing 'beginning-of-parenthesis 'end-of-parenthesis arg)
 (paste-to-mark arg))
@@ -348,8 +339,7 @@ nil
 
 
 (defun show-fly-err-at-point ()
-  "If the cursor is sitting on a flymake error, display the
-message in the minibuffer"
+  "If the cursor is sitting on a flymake error, display the message in the minibuffer"
   (interactive)
   (let ((line-no (line-number-at-pos)))
     (dolist (elem flymake-err-info)
@@ -358,8 +348,7 @@ message in the minibuffer"
         (message "%s" (fly-pyflake-determine-message err)))))))
 
 (defun fly-pyflake-determine-message (err)
-  "pyflake is flakey if it has compile problems, this adjusts the
-message to display, so there is one ;)"
+  "pyflake is flakey if it has compile problems, this adjusts the message to display, so there is one ;)"
   (cond ((not (or (eq major-mode 'Python) (eq major-mode 'python-mode) t)))
     ((null (flymake-ler-file err))
      ;; normal message do your thing
@@ -376,10 +365,7 @@ message to display, so there is one ;)"
   (show-fly-err-at-point))
 
 (defadvice flymake-mode (before post-command-stuff activate compile)
-  "Add functionality to the post command hook so that if the
-cursor is sitting on a flymake error the error information is
-displayed in the minibuffer (rather than having to mouse over
-it)"
+  "Add functionality to the post command hook so that if the cursor is sitting on a flymake error the error information is displayed in the minibuffer (rather than having to mouse overit)"
   (set (make-local-variable 'post-command-hook)
        (cons 'show-fly-err-at-point post-command-hook))) 
 
@@ -437,7 +423,7 @@ it)"
 (setq mail-sources
        '((pop :server "pop3.163.com" ;; 在这里设置pop3服务器
        :user "conan128" ;; 用户名
-;;       :port "110"
+;;       :port "25"
        :password "lisa16"))) ;; 密码
 (setq gnus-secondary-select-methods '((nnfolder "")))
 ;;smtp设置
@@ -532,8 +518,7 @@ it)"
 ;; 防止org-mode在导出HTML时把行末的回车输出为空格
 (defadvice org-html-paragraph (before fsh-org-html-paragraph-advice
                                       (paragraph contents info) activate)
-  "Join consecutive Chinese lines into a single long line without
-unwanted space when exporting org-mode to html."
+  "Join consecutive Chinese lines into a single long line without unwanted space when exporting org-mode to html."
   (let ((fixed-contents)
         (orig-contents (ad-get-arg 1))
         (reg-han "[[:multibyte:]]"))
@@ -545,8 +530,7 @@ unwanted space when exporting org-mode to html."
     (ad-set-arg 1 fixed-contents)))
 
 (defun my-org-screenshot (basename)
-  "Take a screenshot into a time stamped unique-named file in the
-same directory as the org-buffer and insert a link to this file."
+  "Take a screenshot into a time stamped unique-named file in the same directory as the org-buffer and insert a link to this file."
   (interactive "sScreenshot name: ")
   (if (equal basename "")
       (setq basename (format-time-string "%Y%m%d_%H%M%S")))
@@ -571,20 +555,177 @@ same directory as the org-buffer and insert a link to this file."
                      "~/doc/org/home.org"))
 ;;yasnippet
 
-;;(yas-global-mode 1)
-;;(require 'auto-complete)
-;;(require 'auto-complete-config)
+;
+(require 'auto-complete)
+(require 'auto-complete-config)
 ;;(setq yas/root-directory "~/.emacs.d/elpa/yasnippet-20161026.1601/snippets/") 
 ;;(yas/load-directory yas/root-directory)
 
-(add-to-list 'load-path
-             "~/.emacs.d/elpa/yasnippet-20161026.1601")
+(add-to-list 'load-path "~/.emacs.d/elpa/yasnippet-20161026.1601")
 (require 'yasnippet) ;; not yasnippet-bundle
 (yas/initialize)
-(yas/load-directory "~/.emacs.d/elpa/yasnippet-20161026.1601/snippets")
-
 (setq yas/root-directory "~/.emacs.d/snippets/") 
 (yas/load-directory yas/root-directory)
 
+(setq yas-snippet-dirs     
+  '("~/.emacs.d/snippets"        
+           ;; personal snippets
+        ))
+
+(yas-global-mode 1)
+;;设置日历的一些颜色
+(setq calendar-load-hook
+      '(lambda ()
+	 (set-face-foreground 'diary-face "skyblue")
+	 (set-face-background 'holiday-face "slate blue")
+	 (set-face-foreground 'holiday-face "white")))
+
+
+
+;;设置我所在地方的经纬度，calendar里有个功能是日月食的预测，和你的经纬度相联系的。
+;; 让emacs能计算日出日落的时间，在 calendar 上用 S 即可看到
+(setq calendar-latitude +39.54)
+(setq calendar-longitude +116.28)
+(setq calendar-location-name "北京")
+
+;; 设置阴历显示，在 calendar 上用 pC 显示阴历
+(setq chinese-calendar-celestial-stem
+      ["甲" "乙" "丙" "丁" "戊" "己" "庚" "辛" "壬" "癸"])
+(setq chinese-calendar-terrestrial-branch
+      ["子" "丑" "寅" "卯" "辰" "巳" "戊" "未" "申" "酉" "戌" "亥"])
+
+;; 设置 calendar 的显示
+(setq calendar-remove-frame-by-deleting t)
+(setq calendar-week-start-day 1) ; 设置星期一为每周的第一天
+(setq mark-diary-entries-in-calendar t) ; 标记calendar上有diary的日期
+(setq mark-holidays-in-calendar nil) ; 为了突出有diary的日期，calendar上不标记节日
+(setq view-calendar-holidays-initially nil) ; 打开calendar的时候不显示一堆节日
+
+;; 去掉不关心的节日，设定自己在意的节日，在 calendar 上用 h 显示节日
+(setq christian-holidays nil)
+(setq hebrew-holidays nil)
+(setq islamic-holidays nil)
+(setq solar-holidays nil)
+(setq general-holidays '((holiday-fixed 1 1 "元旦")
+			 (holiday-fixed 2 14 "情人节")
+			 (holiday-fixed 3 14 "白色情人节")
+			 (holiday-fixed 4 1 "愚人节")
+			 (holiday-fixed 5 1 "劳动节")
+			 (holiday-float 5 0 2 "母亲节")
+			 (holiday-fixed 6 1 "儿童节")
+			 (holiday-float 6 0 3 "父亲节")
+			 (holiday-fixed 7 1 "建党节")
+			 (holiday-fixed 8 1 "建军节")
+			 (holiday-fixed 9 10 "教师节")
+			 (holiday-fixed 10 1 "国庆节")
+			 (holiday-fixed 12 25 "圣诞节")))
+
+;;Calendar模式支持各种方式来更改当前日期
+;;（这里的“前”是指还没有到来的那一天，“后”是指已经过去的日子）
+;; q 退出calendar模式
+;; C-f 让当前日期向前一天
+;; C-b 让当前日期向后一天
+;; C-n 让当前日期向前一周
+;; C-p 让当前日期向后一周
+;; M-} 让当前日期向前一个月
+;; M-{ 让当前日期向后一个月
+;; C-x ] 让当前日期向前一年
+;; C-x [ 让当前日期向后一年
+;; C-a 移动到当前周的第一天
+;; C-e 移动到当前周的最后一天
+;; M-a 移动到当前月的第一天
+;; M-e 多动到当前月的最后一天
+;; M-< 移动到当前年的第一天
+;; M-> 移动到当前年的最后一天
+
+;;Calendar模式支持移动多种移动到特珠日期的方式
+;; g d 移动到一个特别的日期
+;; o 使某个特殊的月分作为中间的月分
+;; . 移动到当天的日期
+;; p d 显示某一天在一年中的位置，也显示本年度还有多少天。
+;; C-c C-l 刷新Calendar窗口
+
+;; Calendar支持生成LATEX代码。
+;; t m 按月生成日历
+;; t M 按月生成一个美化的日历
+;; t d 按当天日期生成一个当天日历
+;; t w 1 在一页上生成这个周的日历
+;; t w 2 在两页上生成这个周的日历
+;; t w 3 生成一个ISO-SYTLE风格的当前周日历
+;; t w 4 生成一个从周一开始的当前周日历
+;; t y 生成当前年的日历
+
+;;EMACS Calendar支持配置节日：
+;; h 显示当前的节日
+;; x 定义当天为某个节日
+;; u 取消当天已被定义的节日
+;; e 显示所有这前后共三个月的节日。
+;; M-x holiday 在另外的窗口的显示这前后三个月的节日。
+
+
+;; 另外，还有一些特殊的，有意思的命令：
+;; S 显示当天的日出日落时间(是大写的S)
+;; p C 显示农历可以使用
+;; g C 使用农历移动日期可以使用
+
+(require 'tabbar)
+(tabbar-mode)
+(global-set-key (kbd "C-x <left>") 'tabbar-backward-group)
+(global-set-key (kbd "C-x <right>") 'tabbar-forward-group)
+(global-set-key (kbd "C-x <down>") 'tabbar-backward)
+(global-set-key (kbd "C-x <up>") 'tabbar-forward)
+(require 'session)
+  (add-hook 'after-init-hook 'session-initialize)
+;;使用了这个扩展之后，你上次离开 Emacs 时的全局变量 (kill-ring，命令记录……)，局部变量，
+;;寄存器，打开的文件，修 改过的文件和最后修改的位置，…… 全部都会被记录下来。
+(load "desktop") 
+(desktop-load-default) 
+(desktop-read)
+
+
+(autoload 'mmm-mode "mmm-mode" "Multiple Major Modes" t)
+(autoload 'mmm-parse-buffer "mmm-mode" "Automatic MMM-ification" t)
+
+
+
+(require 'emacs-wiki)
+(add-to-list 'emacs-wiki-interwiki-names
+        '("EmacsWiki" .
+          (lambda (tag)
+      (concat "http://www.emacswiki.org/cgi-bin/wiki.pl?"
+        (or tag "EmacsWiki")))))
+(add-hook 'emacs-wiki-mode-hook
+    (lambda ()
+      (define-key emacs-wiki-mode-map (kbd "C-c C-b") 'emacs-wiki-preview-html)
+      (define-key emacs-wiki-mode-map (kbd "C-c C-c") 'emacs-wiki-preview-source)
+      (define-key emacs-wiki-mode-map (kbd "C-c C-v") 'emacs-wiki-change-project)
+
+))
+
+;; (setq emacs-wiki-grep-command "glimpse -nyi \"%W\"")
+
+(setq emacs-wiki-publishing-directory "publish")
+
+(setq emacs-wiki-directories '("~/WiKi"))
+(setq emacs-wiki-meta-charset "gb2312")
+(setq emacs-wiki-style-sheet
+      "")
+
+(setq emacs-wiki-inline-relative-to 'emacs-wiki-publishing-directory)
+
+(defun emacs-wiki-preview-source ()
+  (interactive)
+  (emacs-wiki-publish-this-page)
+  (find-file (emacs-wiki-published-file)))
+
+(defun emacs-wiki-preview-html ()
+  (interactive)
+  (emacs-wiki-publish-this-page)
+  (browse-url (emacs-wiki-published-file)))
+
+(setq emacs-wiki-projects
+      `(("default" . ((emacs-wiki-directories . ("~/WiKi"))))
+        ("work" . ((fill-column . 65)
+                 (emacs-wiki-directories . ("~/workwiki/"))))))
 
 (provide 'mysettings)

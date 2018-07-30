@@ -1,0 +1,60 @@
+% Created 2018-03-15 周四 18:38
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\author{longguosong}
+\date{\today}
+\title{test}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.3.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{biaoti1}
+\label{sec-1}
+\subsection{biaoti2}
+\label{sec-1-1}
+\subsubsection{biaoti3}
+\label{sec-1-1-1}
+\begin{itemize}
+\item treeroot
+\begin{itemize}
+\item branch1
+\item branch2
+\end{itemize}
+\end{itemize}
+[-] renwu1
+[] zirenwu1
+[] zirenwu2
+[] zirenwu3
+\subsection{foot}
+\label{sec-1-2}
+input | Name| Phone| Sub|
+\begin{center}
+\begin{tabular}{rllll}
+1 & \textit{<2018-03-15 周四>} &  &  & \\
+ &  &  &  & \\
+\hline
+ &  &  &  & \\
+\end{tabular}
+\end{center}
+% Emacs 25.3.1 (Org mode 8.2.10)
+\end{document}

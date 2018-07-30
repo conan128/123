@@ -1,0 +1,11 @@
+	public start
+	start proc near
+	push cs
+	pop ds
+	assume ds:seg000
+	mov dx ,0Eh
+	mov ah,9
+	int 21h
+	mov ax,4c01h
+	int 21h
+	start endp

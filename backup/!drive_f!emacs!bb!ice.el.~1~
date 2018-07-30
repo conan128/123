@@ -1,0 +1,3 @@
+(insert "bb comes on")
+(setq b "hello world")
+(provide 'ice)

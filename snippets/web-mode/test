@@ -1,8 +1,6 @@
-#contributor : ljp <ljp.gogo@gmail.com>
-#name : Create a 51 interrupt function
+# -*- mode: snippet -*-
+# name: myyas
+# key: myyas
 # --
-
-void int${1:var1}() interrupt ${2:var2} using ${3:var3} 
-{ 
-${0:}
-}
+"I am the bone of my sword"
+FILE *${0:fp} = fopen("${1:file}", "${2:r}");

@@ -1,0 +1,3 @@
+
+(setq b "hello world")
+(provide 'ice)

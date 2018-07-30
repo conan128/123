@@ -26,3 +26,69 @@ exit
 (let ((softs '(auctex auto-complete cdlatex-mode slime yasnippet)))  (dolist (obj softs)    (el-get-install obj)))
 (+ 2 3)
 exit
+ls
+cd ~
+ls
+ls
+cd download/
+ls
+cd ..
+ls
+cd ..
+cd
+ls
+cd
+cd ..
+cd ~
+ls
+em
+e:
+ls
+cd ..
+ls
+cd ..
+ls
+touch a.html
+ls
+rm 360downloads/
+ls
+rm -rf 360downloads/
+ls
+rm qycache/
+ls
+rm -rf qycache/
+ls
+md test2
+ls
+mkdir 2
+ls
+cd 2
+ls
+exir
+exit
+e:
+ls
+git clone git@github.com:conan128/mypro
+ls
+ls
+cd ..
+ls
+mkdir git
+ls
+ls
+cd git
+ls
+git clone http://git@github.com:conan128/.emacs.d
+git clone http://git@github.com:conan128/.emacs.d.git
+git clone http://git@github.com/conan128/.emacs.d.git
+ls
+ls
+ls
+ls -la
+git remoute add conan http://git@github.com/conan128
+git remute add conan http://git@github.com:conan128
+git help
+ls
+ls
+ls
+ls

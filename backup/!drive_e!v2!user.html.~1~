@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>User</title>
+  <script type="text/javascript" src="libs/jquery-3.3.1/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="libs/jquery-3.3.1/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" src="libs/bootstrap-3.3.7/js/bootstrap.js"></script>
+  <style src="libs/bootstrap-3.3.7/css/bootstrap.css"></style>
+  <link rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" href="libs/fontawesome-5.0.7/css/fontawesome-all.css">
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default">
+  <div class="container">
+         <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+             <div class="navbar-header"><img alt="logo" src="images/logo.png">
+
+      
+             </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+     
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+        <a href="#"><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span>txw</a></span></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">个人中心<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><span class="glyphicon glyphicon-lock" aria-hidden="false"></span><span><a href="#">  &nbsp 修改密码</a></span></li>
+            <li><span class="glyphicon glyphicon-off" aria-hidden="false"></span><span><a href="#">  &nbsp 退出</a></span></li>
+           
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+</div>
+<div class="container">
+<div class="row">
+
+
+<div class="col-sm-2">
+            <div class="list-group">
+                <a href="#" class="list-group-item active"><i class="glyphicon glyphicon-user"></i> 用户管理</a>
+                <a href="#" class="list-group-item"><i class="glyphicon glyphicon-tag"></i> 品牌管理</a>
+                <a href="#" class="list-group-item"><i class="glyphicon glyphicon-list"></i> 品类管理</a>
+                <a href="#" class="list-group-item"><i class="glyphicon glyphicon-search"></i> 产品系列</a>
+            </div>
+        </div>
+<div class=" col-sm-10" >
+
+
+ <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-home"></i> 首页</a></li>
+                <li class="active">用户管理</li>
+            </ol>
+<!--<ol class="breadcrumb>
+      <li class="glyphicon glyphicon-home">&nbsp首页</li>
+      <li class="active">&nbsp用户管理</li>
+</ol>-->
+
+<div class="well">
+                <form>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputUserName" class="col-sm-1 control-label">用户名</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="inputUserName" placeholder="用户名">
+                            </div>
+                            <label for="inputName" class="col-sm-1 control-label">姓名</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="inputName" placeholder="姓名">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0">
+                            <label for="inputWorkId" class="col-sm-1 control-label">工号</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" id="inputWorkId" placeholder="工号">
+                            </div>
+                            <label for="inputState" class="col-sm-1 control-label">状态</label>
+                            <div class="col-sm-3">
+                                <select class="form-control" id="inputState">
+                                    <option value="-1" selected>全部</option>
+                                    <option value="1">可用</option>
+                                    <option value="0">不可用</option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2 col-sm-offset-1">
+                                <button class="btn btn-primary">查询</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+<button class="btn btn-danger" data-toggle="modal" data-target="#newUserModal">添加新用户</button>
+
+            <!-- 用户数据表格 -->
+            <table class="table table-bordered" style="margin-top: 20px">
+                <thead>
+                <tr>
+                    <th class="text-center" style="width: 10%">序号</th>
+                    <th class="text-center" style="width: 10%">用户名</th>
+                    <th class="text-center" style="width: 10%">工号</th>
+                    <th class="text-center" style="width: 10%">姓名</th>
+                    <th class="text-center" style="width: 10%">状态</th>
+                    <th class="text-center" style="width: 20%">描述</th>
+                    <th class="text-center" style="width: 30%">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center">001</td>
+                    <td class="text-left">zhangsan</td>
+                    <td class="text-left">ls001</td>
+                    <td class="text-left">张三</td>
+                    <td class="text-center">有效</td>
+                    <td class="text-left">张三小子</td>
+                    <td class="text-center">
+                        <button class="btn btn-primary">编辑</button>
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#conformModal">停用</button>
+                        <button class="btn btn-danger">删除</button>
+                        <button class="btn btn-info">重置密码</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">002</td>
+                    <td class="text-left">lisi</td>
+                    <td class="text-left">ls002</td>
+                    <td class="text-left">李四</td>
+                    <td class="text-center">无效</td>
+                    <td class="text-left">李四小子</td>
+                    <td class="text-center">
+                        <button class="btn btn-primary">编辑</button>
+                        <button class="btn btn-success">启用</button>
+                        <button class="btn btn-danger">删除</button>
+                        <button class="btn btn-info">重置密码</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <div class="row">
+                <div class="col-sm-3" >
+                    <p>总计<span>23</span>条记录，共<span>2</span>页。</p>
+                </div>
+                <div class="col-sm-9 text-right">
+                    <ul class="pagination">
+                        <li class="active"><a href="#">1</a></li>
+                        <li><a href="#">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#">4</a></li>
+                        <li><a href="#">5</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Footer -->
+<hr />
+<p class="text-muted text-center">Copyright &copy; 2018</p>
+
+
+<div class="modal fade" id="newUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">添加新用户</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label for="inputModalWorkId" class="col-sm-2 control-label">人员编码</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="inputModalWorkId" placeholder="人员编码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputModalName" class="col-sm-2 control-label">人员姓名</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="inputModalName" placeholder="人员编码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputModalUserName" class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" id="inputModalUserName" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputModalDescription" class="col-sm-2 control-label">人员描述</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="inputModalDescription" rows="3" placeholder="人员描述"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">有效性</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="inputModalState" id="inputModalStateTrue" value="1" checked> 有效
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="inputModalState" id="inputModalStateFalse" value="0"> 无效
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">权限</label>
+                            <div class="col-sm-10">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="inputRuleAdmin"> 管理员
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="inputRuleBland"> 品牌管理
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="inputRuleCategory"> 品类管理
+                                </label>
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" id="inputRuleSerial"> 产品系列
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="conformModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">停用用户</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-3 text-right">
+                        <img src="images/jinggao.png">
+                    </div>
+                    <div class="col-sm-9">
+                        <p style="margin-top: 20px">停用此用户后无法正常操作系统，您确定要停用用户<span>user</span>？</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+</body>
+</html>

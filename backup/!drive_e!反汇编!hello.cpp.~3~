@@ -1,0 +1,9 @@
+#include<iostream>
+int main()
+{
+    int a;
+    a=90;
+    a=a*7;
+    cout<<a;
+    return 0;
+}

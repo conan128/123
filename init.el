@@ -1,4 +1,5 @@
 
+
 ;;  __        __             __   ___
 ;; |__)  /\  /  ` |__/  /\  / _` |__
 ;; |    /~~\ \__, |  \ /~~\ \__> |___
@@ -12,18 +13,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;;'(inhibit-startup-screen t)
+;; (inhibit-startup-screen t)
  ;;'(send-mail-function (quote smtpmail-send-it)))
 ;;(put 'upcase-region 'disabled nil)
 
 ;;注释反注释
 (defun qiang-comment-dwim-line (&optional arg)
-  "Replacement for the comment-dwim command.
-If no region is selected and current line is not blank and we are not at the end of the line,
+  "Replacement for the comment-dwim command.If no region is selected and current line is not blank and we are not at the end of the line,
 then comment current line.
-Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
-  (interactive "*P")
-  (comment-normalize-vars)
+Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."  
+(interactive "*P")  (comment-normalize-vars)
   (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))
     (comment-dwim arg)))
@@ -32,23 +31,48 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (require 'org)
 (setq org-src-fontify-natively t)
 ;;字体
-(set-language-environment 'UTF-8)
-(set-locale-environment "UTF-8")
 
+;;zhongwen
+;;(set-language-environment 'UTF-8)
+;(set-locale-environment "UTF-8")
+;(set-language-environment "utf-8")
+;;(set-buffer-file-coding-system 'utf-8)
+;;(set-terminal-coding-system 'utf-8)
+;;(set-keyboard-coding-system 'utf-8)
+;;(set-selection-coding-system 'utf-8)
+;;(set-default-coding-systems 'utf-8)
+;;(set-clipboard-coding-system 'utf-8) 
+
+;(setq ansi-color-for-comint-mode t)
+;(setq-default pathname-coding-system 'utf-8)  
+;(setq default-process-coding-system '(utf-8 . utf-8))  
+;(setq locale-coding-system 'utf-8)
+;(setq file-name-coding-system 'utf-8) 
+;(setq default-buffer-file-coding-system 'utf-8)  
+;(setq slime-net-coding-system 'utf-8-unix)
+
+;(modify-coding-system-alist 'process "*" 'utf-8)  
+;(prefer-coding-system 'utf-8)
 ;中文与外文字体设置
 ;; Setting English Font
-(set-face-attribute 'default nil :font "Monospace 18")
-(set-fontset-font "fontset-default" 'unicode '("WenQuanYi Zen Hei"
-					       . "unicode-ttf"))
-
+;;(set-face-attribute 'default nil :font "Monospace 25")
+;;(set-fontset-font "fontset-default" 'unicode '("WenQuanYi Zen Hei" . "unicode-ttf"))
+(require 'package)
+(package-initialize)
+(add-to-list'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 ;;全局
+;;设置窗口位置为屏库左上角(0,0)
+(set-frame-position (selected-frame) 0 0)
+;;设置宽和高,我的十寸小本是140,28,大家可以调整这个参数来适应自己屏幕大小
+(set-frame-width (selected-frame) 140)
+(set-frame-height (selected-frame) 28)
 (defun open-init-file()
   (interactive)
-  (find-file "~/.emacs"))
+  (find-file "~/.emacs.d/init.el"))
 ;; 这一行代码，将函数 open-init-file 绑定到 <C-f11> 键上
 (global-set-key [(C-f11)] 'open-init-file) 
 ;;这里打开终端的快捷键
-(global-set-key "\C-e" 'ansi-term)
+(global-set-key [(C-9)] 'ansi-term)
 ;;这里打开Ace-jump-mode快捷键
 (global-set-key [(C-f8)] 'ace-jump-mode)
 
@@ -103,30 +127,58 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
   '(progn
      (color-theme-initialize)
      (color-theme-blackboard)))
-;使用Emacs-w3m浏览网页                                                                                                        
-(add-to-list 'load-path "~/.emacs.d/elpa/w3m")
- (require 'w3m-load)
-(setq w3m-home-page "http://www.baidu.com")
-;load & init 
-(autoload 'w3m "w3m" "interface for w3m on emacs" t)
-(autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
-(autoload 'w3m-search "w3m-search" "Search words using emacs-w3m." t)
-;;settings
-(setq w3m-use-cookies t)
-(require 'mime-w3m) 
-(setq w3m-default-display-inline-image t) 
-(setq w3m-default-toggle-inline-images t)
+(autoload 'gmail2bbdb-import-file "gmail2bbdb" nil t nil)
 
-    ;;C-f6,C-S-f6
-    (require 'swbuff)
-(global-set-key (kbd "") 'swbuff-switch-to-previous-buffer)
-(global-set-key (kbd "") 'swbuff-switch-to-next-buffer)
-(setq swbuff-exclude-buffer-regexps 
-     '("^ " "\\*.*\\*"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
+ '(display-time-mode t)
+ '(package-selected-packages
+   (quote
+    (gmail2bbdb register-list xterm-color web-mode todotxt-mode swiper-helm sublime-themes ssh spinner smartparens smart-mode-line sexy-monochrome-theme seti-theme session select-themes redis react-snippets python-mode password-store password-generator org-gnome org-ac occur-x nodejs-repl node-resolver monokai-theme monochrome-theme mocha mark-tools macrostep js3-mode js2-refactor jq-mode jazz-theme imenu+ iedit hungry-delete html5-schema html-script-src html-check-frag helm-ag git-commit git flycheck-color-mode-line expand-region exec-path-from-shell counsel company-auctex company-anaconda color-theme-modern coffee-fof chinese-pyim chicken-scheme chess auto-yasnippet auto-compile angular-mode ace-pinyin ac-js2)))
+ '(send-mail-function (quote smtpmail-send-it))
+ '(show-paren-mode t)
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "Microsoft YaHei UI" :foundry "outline" :slant normal :weight normal :height 163 :width normal)))))
 
-(setq swbuff-status-window-layout 'scroll)
-(setq swbuff-clear-delay 1)
-(setq swbuff-separator "|")
-(setq swbuff-window-min-text-height 1)
+;; copy region or whole line
+(global-set-key "\M-w"
+(lambda ()
+  (interactive)
+  (if mark-active
+      (kill-ring-save (region-beginning)
+		      (region-end))
+    (progn
+      (kill-ring-save (line-beginning-position)
+		      (line-end-position))
+      (message "copied line")))))
+
+
+;; kill region or whole line
+(global-set-key "\C-w"
+		(lambda ()
+		  (interactive)
+		  (if mark-active
+		      (kill-region (region-beginning)
+				   (region-end))
+		    (progn
+		      (kill-region (line-beginning-position)
+				   (line-end-position))
+		      (message "killed line")))))
 ;;自己的设置
 (require 'mysettings)
+(require 'slime)
+(require 'clojure-mode)
+
+
+
+
+

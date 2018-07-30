@@ -1,0 +1,16 @@
+ls=dir /ONE $*
+cat=type $*
+rm=rd/s/q $*
+cd=cd /d $*
+pwd=cd
+mkdir=md $*
+lt=dir /OD $*
+grep=find /N "$1" $2
+subl=C:\Windows\mysoft\Sublime3\sublime_text.exe $*
+mv=move $*
+em=D:\emacs-25.3\bin\runemacs.exe $*
+ems=D:\emacs-25.3\bin\emacs-25.3 -nw $*
+cp=xcopy/s/e $*
+mygrunt= C:\Users\44228\mysettings\mygrunt.bat $*
+lisper=D:\lispbox-0.7\lispbox.bat $*
+pshell=pshell.lnk $*

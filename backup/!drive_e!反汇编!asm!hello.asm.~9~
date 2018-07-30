@@ -1,0 +1,50 @@
+code　　 segment
+assume　　 cs:code
+start:
+　　mov　　 ah,2ch　；2ch号功能调用，取系统时间：ch,cl,dh中分别存放时分秒
+　　int　　 21h
+　　call　　disptime；调用disptime子程序显示时间
+exit:
+　　mov　 ax,4c00h　；结束程序，返回DOS
+　　int　　 21h
+　　disptime　　 proc
+　　mov　　 al,ch　 ；小时的值赋给al
+　　cbw　　　　　　 ；al扩展成ax，用做除法的被除数
+　　call　　 bindec
+　　mov　　 dl,':'　；显示":"
+　　mov　　 ah,02h
+　　int　　 21h
+　　mov　　 al,cl　 ；分
+　　cbw
+　　call　　 bindec
+　　mov　　 dl,':'　；显示":"
+　　mov　　 ah,02h
+　　int　　 21h
+　　mov　　 al,dh；秒
+　　cbw
+　　call　　 bindec
+　　ret
+disptime　　 endp
+　　bindec　　 proc　　
+　　push　　ax　　 ；保存寄存器的值(一定要的)
+　　push　　cx
+　　push　　dx
+　　mov　　 dx,0　　；被除数高16位置0
+　　mov　　 cx,10d　；除数为10d
+　　div　　 cx
+　　mov　　 bx,dx　 ；先保存余数
+　　mov　　 dl,al　 ；显示商(即十进制二位数的十位)
+　　add　　 dl,30h　；转换成Ascii码
+　　mov　　 ah,02h　；2号功能调用，显示字符（十位）
+　　int　　 21h
+　　mov　　 dx,bx　 ；恢复余数的值(十进制二位数的个位)
+　　add　　 dl,30h　；转换成ASCII码
+　　mov　　 ah,02h　；2号功能调用，显示字符（个位）
+　　int　　 21h
+　　pop　　 dx　　　；恢复寄存器的值
+　　pop　　 cx
+　　pop　　 ax
+　　ret　　　；子程序返回
+bindec　　 endp
+code　　 ends
+　　end　　 start

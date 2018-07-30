@@ -1,0 +1,17 @@
+{
+  "name": "lq",
+  "version": "1.0.0",
+  "description": "first try",
+  "main": "index.js",
+  "scripts": {
+    "test": "start"
+  },
+  "keywords": [
+    "lq"
+  ],
+  "author": "longgs",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  }
+}

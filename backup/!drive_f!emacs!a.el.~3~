@@ -1,0 +1,4 @@
+(setq b "nice to meet you")
+(insert "aaa comes up")
+(provide 'ice)
+

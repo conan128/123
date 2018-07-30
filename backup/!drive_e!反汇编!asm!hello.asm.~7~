@@ -1,0 +1,13 @@
+assume cs:code
+start:
+mov ax,0
+mov bx,1
+mov cx,100
+next:
+add ax,bx
+inc bx
+loop next
+mov ah,4ch
+int 21h
+code ends
+end start

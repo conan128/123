@@ -1,0 +1,39 @@
+#include <Windows.h>
+
+
+
+DWORD org_addr = 0;
+_declspec(naked) int WINAPI org_MessageBoxA(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
+{
+    _asm
+    {
+	mov edi, edi
+	    push ebp
+	    mov ebp, esp
+	    jmp org_addr
+	    }
+}
+
+int WINAPI My_MessageBoxA( HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
+{
+    org_MessageBoxA(hWnd, "213123123", "dfgsgfsdfsdf", uType);
+	
+    return MessageBoxW(0, 0, 0, 0);
+}
+
+
+void main()
+{
+    HMODULE modle = (HMODULE)GetModuleHandleA("user32.dll");
+    DWORD addr =  (DWORD)GetProcAddress(modle,"MessageBoxA");
+
+    org_addr = addr + 5;
+
+    DWORD oldprotect = 0;
+    VirtualProtect((LPVOID)addr,5, PAGE_EXECUTE_READWRITE, &oldprotect);
+    *(BYTE*)addr = 0xE9;
+    *(DWORD*)(addr + 1) = (DWORD)My_MessageBoxA - addr - 5;
+
+
+    MessageBoxA(0,"正常内容","正常内容",0);
+}

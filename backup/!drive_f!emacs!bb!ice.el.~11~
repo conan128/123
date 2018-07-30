@@ -1,0 +1,34 @@
+(global-set-key "\C-t"  (lambda() (interactive)(progn (insert "\nI am hello world"))))
+(setq b "hello world")
+(provide 'ice)
+
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+
+hello world

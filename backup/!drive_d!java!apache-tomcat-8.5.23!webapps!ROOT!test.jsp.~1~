@@ -1,0 +1,4 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%
+out.print("²ËÄñ½Ì³Ì : http://www.runoob.com");
+%> 
